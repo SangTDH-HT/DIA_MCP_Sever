@@ -6,12 +6,15 @@ A "Settings" title and a 4 x 2 grid of tiles - Parameter, I/O, Calibration,
 Account Management, Date and time, Language, Screen Brightness, About. Each tile
 is one Goto Screen whose face is rendered here (Lucide icon + label).
 
-The pages behind the tiles do not exist yet, so each tile gets an empty page of
-its own: the Setting page's frame and side bar (Setting lit), a back link to
-Settings and the page title. Their content comes later.
+Each tile opens a page of its own on the Setting frame (side bar, Setting lit).
+Every one of those sub-pages opens the same way, and it is drawn here and
+nowhere else (Sang 30/09: one direction, the About mockup's): the title large
+on the left, an X in a box on the right back to Settings, content from
+CONTENT_TOP down. Builders of a page's content (build_calibration_page.py,
+build_info_pages.py) never touch the st_ elements.
 
-Re-runnable: elements named "st_" are removed first, the sub-pages are emptied
-and refilled, and the picture bank is pruned.
+Re-runnable: elements named "st_" (and the sub-pages' side bar) are removed
+first, and the picture bank is pruned.
 """
 
 from __future__ import annotations
@@ -24,7 +27,7 @@ from PIL import Image, ImageDraw
 import build_fill_page as fill
 import build_silo_frame as frame
 from build_fill_page import FIELD_LINE, clear_links, rounded
-from build_silo_frame import INK, MUTED, NAV_INK, NAV_ON, PAGE, WHITE, font, icon, rgb
+from build_silo_frame import INK, NAV_INK, NAV_ON, PAGE, WHITE, font, icon, rgb
 from dpa import edit
 from dpa.model import Project, Screen
 
@@ -38,34 +41,45 @@ TILES = (  # screen, label, icon
     ("Set_Brightness", "Screen Brightness", "monitor"),
     ("Set_About", "About", "info"),
 )
-
-# Pages with a builder of their own: their title and content come from it, and
-# this script only refreshes their side bar and back link.
-OWN_CONTENT = {  # page -> keeps this script's "< Settings" link (the others close with their own X)
-    "Set_Calibration": True,     # build_calibration_page.py
-    "Set_Parameter": False,      # build_info_pages.py
-    "Set_About": False,          # build_info_pages.py
-}
+TITLES = {"Set_Calibration": "Hiệu chỉnh bồn cân", "Set_Parameter": "Cài đặt bồn cân"}  # else the tile's label
 
 # Content area x 93..1024, y 59..600.
 LEFT = 133
-TITLE = (LEFT, 100, 400, 64)          # title picture: words + the blue bar under them
+TITLE = (LEFT, 100, 400, 64)          # Settings title picture: words + the blue bar under them
 TILE_W, TILE_H, GAP = 202, 176, 14
 TILE_Y = (180, 180 + TILE_H + GAP)
-BACK = (LEFT - 6, 70, 120, 26)       # sub-pages: "< Settings"
-SUB_TITLE = (LEFT, 98, 500, 56)
+
+HEAD = (100, 66, 860, 54)             # sub-page title
+CLOSE = (972, 75, 36, 36)             # sub-page X, back to Settings
+CONTENT_TOP = 120                     # sub-page content starts here
 
 
-def title_face(words: str, size: int = 34) -> Image.Image:
-    _, _, w, h = TITLE if size == 34 else SUB_TITLE
+def title_face(words: str) -> Image.Image:
+    _, _, w, h = TITLE
     s = 4
     big = Image.new("RGBA", (w * s, h * s), rgb(PAGE) + (255,))
     d = ImageDraw.Draw(big)
     bar_y = h - 8
     d.rounded_rectangle((0, bar_y * s, 44 * s, (bar_y + 4) * s), radius=2 * s, fill=NAV_ON)
     image = big.resize((w, h), Image.LANCZOS)
-    t = ImageDraw.Draw(image)
-    t.text((0, (bar_y - 6) / 2), words, font=font("arialbd.ttf", size), fill=INK, anchor="lm")
+    ImageDraw.Draw(image).text((0, (bar_y - 6) / 2), words, font=font("arialbd.ttf", 34), fill=INK, anchor="lm")
+    return image
+
+
+def head_face(words: str) -> Image.Image:
+    _, _, w, h = HEAD
+    image = Image.new("RGBA", (w, h), rgb(PAGE) + (255,))
+    ImageDraw.Draw(image).text((0, h / 2), words, font=font("arialbd.ttf", 34), fill=INK, anchor="lm")
+    return image
+
+
+def close_face() -> Image.Image:
+    _, _, w, h = CLOSE
+    s = 4
+    big = Image.new("RGBA", (w * s, h * s), rgb(PAGE) + (255,))
+    rounded(ImageDraw.Draw(big), (0, 0, w, h), fill=WHITE, outline=FIELD_LINE, radius=6)
+    image = big.resize((w, h), Image.LANCZOS)
+    image.alpha_composite(icon("x", 20, NAV_INK, px=1.75, cut=WHITE), ((w - 20) // 2, (h - 20) // 2))
     return image
 
 
@@ -89,19 +103,11 @@ def tile_face(label: str, name: str) -> Image.Image:
     return image
 
 
-def back_face() -> Image.Image:
-    _, _, w, h = BACK
-    image = Image.new("RGBA", (w, h), rgb(PAGE) + (255,))
-    image.alpha_composite(icon("chevron-left", 18, MUTED, px=1.75), (2, (h - 18) // 2))
-    ImageDraw.Draw(image).text((24, h / 2), "Settings", font=font("arial.ttf", 15), fill=MUTED, anchor="lm")
-    return image
-
-
 def render(folder: Path) -> dict[str, Path]:
-    faces = {"st_title": title_face("Settings"), "st_back": back_face()}
+    faces = {"st_title": title_face("Settings"), "st_close": close_face()}
     for screen, label, name in TILES:
         faces[f"st_tile_{screen}"] = tile_face(label, name)
-        faces[f"st_title_{screen}"] = title_face(label.replace("\n", " "), 28)
+        faces[f"st_head_{screen}"] = head_face(TITLES.get(screen, label.replace("\n", " ")))
     folder.mkdir(parents=True, exist_ok=True)
     paths = {}
     for key, image in faces.items():
@@ -112,7 +118,7 @@ def render(folder: Path) -> dict[str, Path]:
 
 
 def sub_page(project: Project, setting: Screen, name: str) -> Screen:
-    """An empty page on the Setting frame; this script's own elements removed if a previous run made it."""
+    """The page behind a tile; this script's own elements removed if a previous run made it."""
     found = [s for s in project.screens if s.name == name]
     if found:
         screen = found[0]
@@ -167,14 +173,12 @@ def main(path: str, asset_dir: str) -> None:
         y = TILE_Y[i // 4]
         goto_button(setting, f"st_tile_{screen}", subs[screen], x, y, f"st_tile_{i + 1}")
 
-    for screen, label, _ in TILES:
+    for screen, _, _ in TILES:
         page = subs[screen]
         for item in nav:  # side bar with Setting lit, as on the Setting page
             edit.clone_element(project, item, page)
-        if OWN_CONTENT.get(screen, True):
-            goto_button(page, "st_back", setting, BACK[0], BACK[1], "st_back")
-        if screen not in OWN_CONTENT:
-            picture(page, f"st_title_{screen}", SUB_TITLE[0], SUB_TITLE[1])
+        picture(page, f"st_head_{screen}", HEAD[0], HEAD[1])
+        goto_button(page, "st_close", setting, CLOSE[0], CLOSE[1], "st_close")
 
     print(project.save(path))
     print(f"Setting: {len(setting.elements)} elements; sub-pages " + ", ".join(f"{s.name}={s.id}" for s in subs.values()))

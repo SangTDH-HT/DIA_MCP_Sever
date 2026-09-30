@@ -8,8 +8,8 @@ Parameter   "CAI DAT BON CAN": three cards - discharge, filling, general and
             speed - of six settings each. A setting is a label, its range
             under it and a numeric entry limited to that range.
 
-Both close with an X in the top right corner back to the Settings page (the
-side bar stays). Entries are one signed word, value x10, like every number on
+Title and X come from build_setting_page.py, like every sub-page; this script
+draws the content from CONTENT_TOP down and leaves the st_ elements alone. Entries are one signed word, value x10, like every number on
 this HMI. No PLC addresses exist yet: ADDRESSES is the list to rebind.
 Re-runnable: elements named "ab_" / "pr_" are removed first.
 """
@@ -24,6 +24,7 @@ from PIL import Image, ImageDraw
 import build_fill_page as fill
 import build_silo_frame as frame
 from build_fill_page import CARD_LINE, FIELD_LINE, RIGHT, clear_links, rounded, text_style
+from build_setting_page import CONTENT_TOP
 from build_silo_frame import INK, MUTED, NAV_INK, PAGE, TAB_LINE, WHITE, bgr, font, icon, rgb
 from dpa import edit
 from dpa.model import Project
@@ -32,7 +33,6 @@ LOGO = Path(r"C:\OTL\LOGO_OTESLA\OTL\OTL-logo-square-01.png")
 BLUE = TAB_LINE          # section titles, the web link
 VALUE = "#2B3644"
 
-CLOSE = (972, 72, 36, 36)
 
 # --- Parameter page ----------------------------------------------------------------
 CARDS = (
@@ -63,9 +63,8 @@ CARDS = (
 )
 ADDRESSES = {f"pr_{c + 1}_{r + 1}": f"${700 + 6 * c + r}" for c in range(3) for r in range(6)}  # value x10
 
-HEAD = (100, 66, 860, 40)
-CARD_Y, CARD_H, CARD_W, GAP = 112, 476, 297, 12
-ROW_TOP, ROW_H = 52, 70
+CARD_Y, CARD_H, CARD_W, GAP = CONTENT_TOP, 466, 297, 12
+ROW_TOP, ROW_H = 50, 69
 BOX_W, BOX_H = 80, 40
 
 
@@ -90,11 +89,11 @@ def fit_label(t: ImageDraw.ImageDraw, words: str, room: int):
 
 
 def parameter_face() -> Image.Image:
-    w, h = 916, CARD_Y + CARD_H - HEAD[1]
+    w, h = 916, CARD_H
     s = 4
     big = Image.new("RGBA", (w * s, h * s), rgb(PAGE) + (255,))
     d = ImageDraw.Draw(big)
-    oy = HEAD[1]
+    oy = CARD_Y
     for c, (_, _, rows) in enumerate(CARDS):
         x = card_x(c) - 100
         y = CARD_Y - oy
@@ -107,8 +106,6 @@ def parameter_face() -> Image.Image:
             rounded(d, (x + CARD_W - 14 - BOX_W, ry + (ROW_H - BOX_H) // 2, BOX_W, BOX_H), outline=FIELD_LINE)
     image = big.resize((w, h), Image.LANCZOS)
     t = ImageDraw.Draw(image)
-    image.alpha_composite(icon("settings", 26, NAV_INK, px=2.0), (0, 7))
-    t.text((38, 20), "CÀI ĐẶT BỒN CÂN", font=font("arialbd.ttf", 22), fill=INK, anchor="lm")
     for c, (title, name, rows) in enumerate(CARDS):
         x = card_x(c) - 100
         y = CARD_Y - oy
@@ -127,7 +124,8 @@ def parameter_face() -> Image.Image:
 
 
 # --- About page ---------------------------------------------------------------------
-PRODUCT = (0, 58, 916, 100)      # inside the page picture, which starts at 100, 66
+PRODUCT = (0, 0, 916, 100)       # inside the page picture, which starts at 100, CONTENT_TOP
+DY = 58                          # every other y below was laid out with the product card at 58
 CONTACTS = (("phone", "Mobile", "(+84) 936 198 938"), ("globe", "Website", "https://www.otlpro.com/"),
             ("mail", "Email", "otesla.vn@gmail.com"))
 
@@ -143,22 +141,21 @@ def logo_mark(size: int) -> Image.Image:
 
 
 def about_face() -> Image.Image:
-    w, h = 916, 526
+    w, h = 916, 468
     s = 4
     big = Image.new("RGBA", (w * s, h * s), rgb(PAGE) + (255,))
     d = ImageDraw.Draw(big)
     px, py, pw, ph = PRODUCT
     rounded(d, PRODUCT)
     d.line(((pw - 150) * s, (py + 20) * s, (pw - 150) * s, (py + ph - 20) * s), fill=CARD_LINE, width=s)
-    d.line((0, 214 * s, w * s, 214 * s), fill=CARD_LINE, width=s)
+    d.line((0, (214 - DY) * s, w * s, (214 - DY) * s), fill=CARD_LINE, width=s)
     cw = (w - 24) // 3
     for i in range(3):
-        rounded(d, (i * (cw + 12), 322, cw, 80))
-    d.line((0, 430 * s, w * s, 430 * s), fill=CARD_LINE, width=s)
+        rounded(d, (i * (cw + 12), 322 - DY, cw, 80))
+    d.line((0, (430 - DY) * s, w * s, (430 - DY) * s), fill=CARD_LINE, width=s)
     image = big.resize((w, h), Image.LANCZOS)
     t = ImageDraw.Draw(image)
 
-    t.text((0, 30), "About", font=font("arialbd.ttf", 34), fill=INK, anchor="lm")
     mark = logo_mark(64)
     image.paste(mark, (30, py + (ph - mark.height) // 2))
     t.text((116, py + 40), "OTL Roaster", font=font("arialbd.ttf", 28), fill=INK, anchor="lm")
@@ -166,34 +163,24 @@ def about_face() -> Image.Image:
     t.text((pw - 130, py + 34), "Version", font=font("arial.ttf", 14), fill=MUTED, anchor="lm")
     t.text((pw - 130, py + 64), "1.0.0", font=font("arial.ttf", 28), fill=INK, anchor="lm")
 
-    t.text((4, 196), "OTESLA INDUSTRIAL COMPANY LIMITED", font=font("arialbd.ttf", 19), fill=INK, anchor="lm")
-    t.text((4, 240), "Tax Code", font=font("arial.ttf", 15), fill=MUTED, anchor="lm")
-    t.text((120, 240), "0314844413", font=font("arial.ttf", 16), fill=INK, anchor="lm")
-    t.text((4, 272), "Office", font=font("arial.ttf", 15), fill=MUTED, anchor="lm")
+    t.text((4, 196 - DY), "OTESLA INDUSTRIAL COMPANY LIMITED", font=font("arialbd.ttf", 19), fill=INK, anchor="lm")
+    t.text((4, 240 - DY), "Tax Code", font=font("arial.ttf", 15), fill=MUTED, anchor="lm")
+    t.text((120, 240 - DY), "0314844413", font=font("arial.ttf", 16), fill=INK, anchor="lm")
+    t.text((4, 272 - DY), "Office", font=font("arial.ttf", 15), fill=MUTED, anchor="lm")
     for i, line in enumerate(("No. 44, N5 Street, Tan Phuoc Quarter, Tan Dong Hiep Ward,", "Ho Chi Minh City, Vietnam.")):
-        t.text((120, 272 + 24 * i), line, font=font("arial.ttf", 16), fill=INK, anchor="lm")
+        t.text((120, 272 - DY + 24 * i), line, font=font("arial.ttf", 16), fill=INK, anchor="lm")
     for i, (name, label, value) in enumerate(CONTACTS):
         x = i * (cw + 12)
-        image.alpha_composite(icon(name, 24, NAV_INK, px=1.75, cut=WHITE), (x + 18, 350))
-        t.text((x + 56, 348), label, font=font("arial.ttf", 13), fill=MUTED, anchor="lm")
-        t.text((x + 56, 374), value, font=font("arial.ttf", 16), fill=BLUE if label == "Website" else INK, anchor="lm")
-    t.text((0, 456), "Copyright ©2025 O TESLA Industrial Co., Ltd. All Rights Reserved.", font=font("arial.ttf", 14),
+        image.alpha_composite(icon(name, 24, NAV_INK, px=1.75, cut=WHITE), (x + 18, 350 - DY))
+        t.text((x + 56, 348 - DY), label, font=font("arial.ttf", 13), fill=MUTED, anchor="lm")
+        t.text((x + 56, 374 - DY), value, font=font("arial.ttf", 16), fill=BLUE if label == "Website" else INK, anchor="lm")
+    t.text((0, 456 - DY), "Copyright ©2025 O TESLA Industrial Co., Ltd. All Rights Reserved.", font=font("arial.ttf", 14),
            fill=MUTED, anchor="lm")
     return image
 
 
-def close_face() -> Image.Image:
-    _, _, w, h = CLOSE
-    s = 4
-    big = Image.new("RGBA", (w * s, h * s), rgb(PAGE) + (255,))
-    rounded(ImageDraw.Draw(big), (0, 0, w, h), fill=WHITE, outline=FIELD_LINE, radius=6)
-    image = big.resize((w, h), Image.LANCZOS)
-    image.alpha_composite(icon("x", 20, NAV_INK, px=1.75, cut=WHITE), ((w - 20) // 2, (h - 20) // 2))
-    return image
-
-
 def render(folder: Path) -> dict[str, Path]:
-    faces = {"ab_page": about_face(), "pr_page": parameter_face(), "info_close": close_face()}
+    faces = {"ab_page": about_face(), "pr_page": parameter_face()}
     folder.mkdir(parents=True, exist_ok=True)
     paths = {}
     for key, image in faces.items():
@@ -205,16 +192,15 @@ def render(folder: Path) -> dict[str, Path]:
 
 def main(path: str, asset_dir: str) -> None:
     project = Project(path)
-    about, params, setting = (project.screen(n) for n in ("Set_About", "Set_Parameter", "Setting"))
+    about, params = project.screen("Set_About"), project.screen("Set_Parameter")
     for page, prefix in ((about, "ab_"), (params, "pr_")):
-        for element in [e for e in page.elements if e.name.startswith((prefix, "st_title", "st_back"))][::-1]:
+        for element in [e for e in page.elements if e.name.startswith(prefix)][::-1]:
             edit.delete_element(project, page, element.index)
     frame.prune_bank(project)
 
     donor = Project(fill.DONOR)
     tpl_rect = donor.element("scr_MainScreen", 1)
     tpl_entry = donor.element("scr_Discharge", 52)
-    goto = next(e for e in setting.elements if e.name == "nav_setting")
 
     assets = render(Path(asset_dir))
     bank = frame.Bank(project)
@@ -232,16 +218,8 @@ def main(path: str, asset_dir: str) -> None:
             state.set("TransColor", bgr(PAGE))
         frame.picture_rect(item, x, y, w, h)
 
-    def close_button(page, name):
-        x, y, w, h = CLOSE
-        item = edit.clone_element(project, goto, page, x, y, w, h, name)
-        frame.face(item, bank, "info_close")
-        frame.flat(item, PAGE)
-
-    picture(about, "ab_page", 100, 66, "ab_page")
-    close_button(about, "ab_close")
-
-    picture(params, "pr_page", 100, HEAD[1], "pr_page")
+    picture(about, "ab_page", 100, CONTENT_TOP, "ab_page")
+    picture(params, "pr_page", 100, CARD_Y, "pr_page")
     for c, (_, _, rows) in enumerate(CARDS):
         for r, (_, low, high, _) in enumerate(rows):
             name = f"pr_{c + 1}_{r + 1}"
@@ -259,7 +237,6 @@ def main(path: str, asset_dir: str) -> None:
             item.section.set("MaxValue", f"{high:.1f}")
             item.section.set("Style", 3)
             text_style(item, 18, VALUE, True, RIGHT)
-    close_button(params, "pr_close")
 
     print(project.save(path))
     print(f"Set_About: {len(about.elements)} elements, Set_Parameter: {len(params.elements)} elements")
