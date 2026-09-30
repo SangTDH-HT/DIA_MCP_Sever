@@ -39,8 +39,8 @@ cd DIA_MCP_Sever
 pip install -r requirements.txt
 powershell -File install-skill.ps1          # skill delta-hmi-style cho Claude Code
 
-python render_dpa.py C:\OTL\SILO_Ban_Moi\HMI_Silo.dpa out   # vẽ mọi screen ra PNG
-python build_fill_page.py C:\OTL\SILO_Ban_Moi\HMI_Silo.dpa C:\OTL\SILO_Ban_Moi\2.Icon_HMI
+python render_dpa.py C:\OTL\SILO_Ban_Moi\3.HMI_SILO\HMI_Silo.dpa out   # vẽ mọi screen ra PNG
+python build_fill_page.py C:\OTL\SILO_Ban_Moi\3.HMI_SILO\HMI_Silo.dpa C:\OTL\SILO_Ban_Moi\2.Icon_HMI
 ```
 
 Đăng ký MCP trong `.mcp.json`:

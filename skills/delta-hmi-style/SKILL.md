@@ -5,7 +5,16 @@ description: Phong cách và cách dựng màn hình HMI Delta (DIAScreen/DOPSof
 
 # Phong cách HMI Delta
 
-Mẫu chuẩn: dự án `C:\OTL\SILO_Ban_Moi\HMI_Silo.dpa` (trang Home_Fill, Home_Discharge, Home_Blend).
+Mẫu chuẩn: dự án `C:\OTL\SILO_Ban_Moi\3.HMI_SILO\HMI_Silo.dpa`. Thư mục dự án (Sáng đặt 30/09):
+
+| Thư mục | Chứa |
+|---|---|
+| `1.Document` | sách hướng dẫn DIAScreen 1.6.1 (PDF) - tra thuộc tính phần tử ở đây trước khi đoán |
+| `2.Icon_HMI` | ảnh script sinh ra (tham số thứ hai của mọi `build_*.py`) |
+| `3.HMI_SILO\HMI_Silo.dpa` | file dự án |
+| `3.HMI_SILO\1.File_Backup` | bản `.bak` trước mỗi lần sửa |
+
+Không ghi gì ra gốc `SILO_Ban_Moi`.
 Code mẫu ở `C:\Tia_Claude\DeltaDpa_src`:
 
 | Script | Dựng gì |
@@ -72,7 +81,7 @@ Lề trong thẻ 16 px. Mọi phần tử trong cột phải thẳng lề x 800.
 - **Nút thiết bị trong thẻ** `valve_button_face`: ô 62x70 icon + nhãn, xám khi nghỉ, trắng viền đậm khi bật.
 - Ô nhập số: 6.1 donor `scr_Discharge` #52, vẽ giếng `TILE` phía sau để báo nhập được.
 
-Icon: Lucide ở `DeltaDpa_src/assets/lucide`; thiếu thì tải `https://unpkg.com/lucide-static@latest/icons/<tên>.svg` vào đó. Hình vẽ tay của Sáng ở `DeltaDpa_src/assets/drawings` (chỉ trên máy, không đẩy GitHub; Silo_3 vẽ đỏ → `inked()` đổi về NAV_INK). Ảnh sinh ra ghi vào `C:\OTL\SILO_Ban_Moi\2.Icon_HMI` (tham số thứ hai của mọi script) - Sáng đã dọn thư mục dự án 30/09, đừng tạo lại `Icon_HMI`.
+Icon: Lucide ở `DeltaDpa_src/assets/lucide`; thiếu thì tải `https://unpkg.com/lucide-static@latest/icons/<tên>.svg` vào đó. Hình vẽ tay của Sáng ở `DeltaDpa_src/assets/drawings` (chỉ trên máy, không đẩy GitHub; Silo_3 vẽ đỏ → `inked()` đổi về NAV_INK). Ảnh sinh ra ghi vào `2.Icon_HMI`; đừng tạo lại `Icon_HMI`.
 
 ## Bẫy .dpa (đã kiểm)
 
@@ -91,7 +100,7 @@ Icon: Lucide ở `DeltaDpa_src/assets/lucide`; thiếu thì tải `https://unpkg
 1. Đọc screen trước (`layout`/script dump) - mẫu, vị trí, chữ.
 2. Lập token/bố cục từ bảng trên; chỉ thêm màu mới khi mẫu đòi.
 3. Render ảnh xem trước cả trang vào scratchpad, tự soát (chữ bị thu nhỏ? dính? lệch lề?) rồi mới nạp.
-4. `close_in_editor` (tự lưu phần Sáng sửa tay) → **so phần tử với lần dựng trước**: Sáng có sửa tay thì đưa vào script, không đè → sao lưu `.bak` → chạy script → đọc lại file.
+4. `close_in_editor` (tự lưu phần Sáng sửa tay) → **so phần tử với lần dựng trước**: Sáng có sửa tay thì đưa vào script, không đè → sao lưu vào `3.HMI_SILO\1.File_Backup\HMI_Silo_truoc_<việc>.dpa.bak` → chạy script → đọc lại file.
 5. Duyệt bằng ảnh thật của file: `python render_dpa.py <dpa> <thư mục> <screen...>` (vẽ từ kho ảnh + phông/căn lề phần tử, không cần DIAScreen).
 6. Cho DIAScreen tự lưu một vòng (`PostMessage WM_COMMAND 0xE103`) và đọc lại để chắc nó nhận → `open_in_editor` cho Sáng xem.
 7. Địa chỉ chưa có PLC thì trỏ bộ nhớ trong `$2xx/$3xx`, liệt kê trong `ADDRESSES` để gán lại sau.
