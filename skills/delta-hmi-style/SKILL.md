@@ -89,5 +89,6 @@ Icon: Lucide ở `C:\Users\Admin\.tia-openness\state\lucide`; thiếu thì tải
 2. Lập token/bố cục từ bảng trên; chỉ thêm màu mới khi mẫu đòi.
 3. Render ảnh xem trước cả trang vào scratchpad, tự soát (chữ bị thu nhỏ? dính? lệch lề?) rồi mới nạp.
 4. `close_in_editor` (tự lưu phần Sáng sửa tay) → **so phần tử với lần dựng trước**: Sáng có sửa tay thì đưa vào script, không đè → sao lưu `.bak` → chạy script → đọc lại file.
-5. Cho DIAScreen tự lưu một vòng (`PostMessage WM_COMMAND 0xE103`) và đọc lại để chắc nó nhận → `open_in_editor` cho Sáng xem.
-6. Địa chỉ chưa có PLC thì trỏ bộ nhớ trong `$2xx/$3xx`, liệt kê trong `ADDRESSES` để gán lại sau.
+5. Duyệt bằng ảnh thật của file: `python render_dpa.py <dpa> <thư mục> <screen...>` (vẽ từ kho ảnh + phông/căn lề phần tử, không cần DIAScreen).
+6. Cho DIAScreen tự lưu một vòng (`PostMessage WM_COMMAND 0xE103`) và đọc lại để chắc nó nhận → `open_in_editor` cho Sáng xem.
+7. Địa chỉ chưa có PLC thì trỏ bộ nhớ trong `$2xx/$3xx`, liệt kê trong `ADDRESSES` để gán lại sau.

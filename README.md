@@ -1,46 +1,95 @@
-# delta-hmi-toolkit — dựng HMI Delta (DIAScreen) bằng code
+<p align="center">
+  <img src="docs/brand/banner.png" alt="delta-hmi-toolkit - dựng màn hình HMI Delta DIAScreen bằng code" width="100%">
+</p>
 
-Bộ công cụ Sáng dùng để thiết kế màn hình HMI Delta DOPSoft / DIAScreen mà không
-cần kéo thả tay: đọc và ghi thẳng file `.dpa`, vẽ mặt thẻ/nút bằng Python, và một
-skill Claude Code giữ phong cách chung.
+<p align="center">
+  <img alt="Python 3.12" src="https://img.shields.io/badge/python-3.12-4A84B6?style=flat-square">
+  <img alt="DIAScreen 1.6 / DOPSoft" src="https://img.shields.io/badge/DIAScreen-1.6%20%7C%20DOPSoft%204-4A84B6?style=flat-square">
+  <img alt="MCP server" src="https://img.shields.io/badge/MCP-delta--dpa-2BB57A?style=flat-square">
+  <img alt="Claude Code skill" src="https://img.shields.io/badge/Claude%20Code-skill-5B6571?style=flat-square">
+</p>
 
-| Phần | Ở đâu |
-|---|---|
-| Thư viện đọc/ghi `.dpa` (byte-identical) | `dpa/` |
-| MCP server `delta-dpa` | `dpa_mcp.py` |
-| Script dựng trang HMI Silo | `build_*.py` (xem bảng dưới) |
-| Skill phong cách `delta-hmi-style` | `skills/delta-hmi-style/SKILL.md`, cài bằng `install-skill.ps1` |
-| Kiến thức định dạng và các bẫy đã gặp | `docs/kien-thuc-dpa.md` |
-| Icon Lucide (ISC) và hình vẽ gốc | `assets/lucide`, `assets/drawings` |
+Delta DIAScreen không có API. Bộ công cụ này mở thẳng file `.dpa`, đọc và ghi lại
+**đúng từng byte**, nên màn hình HMI được dựng bằng script thay vì kéo thả: mặt thẻ,
+nút và sơ đồ quy trình vẽ bằng Python, phần tử động nhân bản từ dự án mẫu rồi gắn
+địa chỉ PLC. Một MCP server cho Claude Code đọc/sửa thiết kế, và một skill giữ cho
+mọi trang cùng một phong cách.
 
-### Script dựng trang (dự án `C:\OTL\SILO_Ban_Moi\HMI_Silo.dpa`)
+## Cách hoạt động
 
-| Script | Trang |
-|---|---|
-| `build_silo_frame.py` | khung chung: logo, user, thanh bên, tab, token màu |
-| `build_fill_page.py` | Home_Fill + mặt dùng chung (START/DỪNG, công tắc chế độ, ô chọn + popup) |
-| `build_home_pages.py` | Home_Discharge (Xả liệu) + Home_Blend (Công thức) |
-| `build_setting_page.py` | Setting: lưới 8 ô + 8 trang con |
-| `build_calibration_page.py` | Set_Calibration: hiệu chỉnh bồn cân |
-
-Mỗi script chạy lại được: `python build_xxx.py <project.dpa> <thư mục ảnh>`.
-Chúng cần các dự án mẫu (donor) nằm ở `C:\OTL\...` - đường dẫn ghi ở đầu mỗi
-script; `.dpa` của khách **không** nằm trong repo.
-
-### Cài trên máy mới
-
+```mermaid
+flowchart LR
+    A["build_*.py<br/>vẽ thẻ, nút, sơ đồ bằng PIL"] --> B["kho ảnh [Picture]<br/>dpa/picbank.py"]
+    D["dự án mẫu .dpa<br/>(donor)"] -- "nhân bản phần tử" --> C
+    B --> C["HMI_Silo.dpa<br/>dpa/document.py ghi đúng từng byte"]
+    C -- "tự đóng / mở, tự lưu kiểm" --> E["DIAScreen"]
+    C --> F["render_dpa.py<br/>ảnh PNG để duyệt"]
+    G["Claude Code"] -- "MCP delta-dpa" --> C
+    H["skill delta-hmi-style"] -. "token, lưới, bẫy .dpa" .-> G
 ```
+
+1. **Vẽ phần tĩnh thành ảnh.** Khung thẻ, tiêu đề, đơn vị, đường ống, hình silo là một ảnh; nút Delta không tô phẳng được nên mặt nút cũng là ảnh render sẵn.
+2. **Nhân bản phần tử động** từ dự án mẫu (ô số, nút, van, ô chọn) rồi chỉ sửa thuộc tính đã hiểu: vị trí, phông, địa chỉ, macro.
+3. **Ghi file, cho DIAScreen tự lưu một vòng** và đọc lại để chắc editor nhận, rồi mở cho người duyệt.
+
+## Bắt đầu nhanh
+
+```powershell
+git clone https://github.com/SangTDH-HT/delta-hmi-toolkit
+cd delta-hmi-toolkit
 pip install -r requirements.txt
-powershell -File install-skill.ps1
+powershell -File install-skill.ps1          # skill delta-hmi-style cho Claude Code
+
+python render_dpa.py C:\OTL\SILO_Ban_Moi\HMI_Silo.dpa out   # vẽ mọi screen ra PNG
+python build_fill_page.py C:\OTL\SILO_Ban_Moi\HMI_Silo.dpa C:\OTL\SILO_Ban_Moi\Icon_HMI
 ```
-rồi đăng ký MCP trong `.mcp.json`:
+
+Đăng ký MCP trong `.mcp.json`:
+
 ```json
 "delta-dpa": { "command": "python", "args": ["<repo>\\dpa_mcp.py"] }
 ```
 
+> Script dựng trang cần các dự án mẫu (donor) nằm ở `C:\OTL\...` - đường dẫn ghi ở đầu mỗi
+> script. File `.dpa` của khách hàng không nằm trong repo.
+
+## Trong repo có gì
+
+```
+dpa/                    thư viện .dpa: document, model, edit, picbank, macro, editor
+dpa_mcp.py              MCP server delta-dpa
+build_silo_frame.py     khung chung: logo, user, thanh bên, tab, token màu, icon Lucide
+build_fill_page.py      Home_Fill + mặt dùng chung (START/DỪNG, công tắc, ô chọn + popup)
+build_home_pages.py     Home_Discharge (Xả liệu) + Home_Blend (Công thức)
+build_setting_page.py   Settings: lưới 8 ô + 8 trang con
+build_calibration_page.py  Hiệu chỉnh bồn cân
+render_dpa.py           vẽ screen ra PNG từ kho ảnh của chính dự án (ảnh chỉ để duyệt ở máy, không commit)
+skills/delta-hmi-style/ skill Claude Code: token, lưới 1024x600, thành phần, bẫy .dpa
+docs/kien-thuc-dpa.md   định dạng .dpa và mọi lần vấp, kèm lý do
+assets/                 icon Lucide (ISC) và hình vẽ gốc
+tests/                  round-trip byte-identical trên 14 dự án thật
+```
+
+## Phong cách
+
+| | Token | |
+|---|---|---|
+| ![](https://img.shields.io/badge/-%20-F3F5F8?style=flat-square) | `#F3F5F8` | nền trang |
+| ![](https://img.shields.io/badge/-%20-1E2630?style=flat-square) | `#1E2630` | chữ chính |
+| ![](https://img.shields.io/badge/-%20-4A84B6?style=flat-square) | `#4A84B6` | mục đang chọn, vạch tiêu đề |
+| ![](https://img.shields.io/badge/-%20-2BB57A?style=flat-square) | `#2BB57A` | START |
+| ![](https://img.shields.io/badge/-%20-F0405A?style=flat-square) | `#F0405A` | DỪNG |
+| ![](https://img.shields.io/badge/-%20-2E9E48?style=flat-square) | `#2E9E48` | đường liệu |
+| ![](https://img.shields.io/badge/-%20-35C2C8?style=flat-square) | `#35C2C8` | đường chân không |
+
+Phông Arial, thẻ bo 6 px viền 1 px không bóng, ô số luôn in đậm. Đầy đủ trong
+[`skills/delta-hmi-style/SKILL.md`](skills/delta-hmi-style/SKILL.md).
+
 ---
 
-## delta-dpa — MCP cho thiết kế HMI Delta (DOPSoft / DIAScreen)
+# Tài liệu kỹ thuật
+
+## MCP `delta-dpa`
 
 Truy cập thiết kế `.dpa` bằng code, giống cách `Tia.exe` làm với TIA Portal —
 đọc screen, đối tượng, địa chỉ PLC, macro nút bấm; sửa và ghi lại.

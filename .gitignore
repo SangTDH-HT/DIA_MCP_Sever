@@ -4,3 +4,6 @@ __pycache__/
 # customer projects and their backups never go in the repo
 *.dpa
 *.bak
+# screen renders stay on this machine (only the banner is published)
+docs/screens/
+out/

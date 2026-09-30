@@ -252,7 +252,7 @@ def weight_card(entry: bool) -> Image.Image:
     big, d = fill.card_base(WEIGHT)
     if entry:  # a grey well says the number can be typed
         tx, ty, tw, th = local(TARGET, (x, y))
-        rounded(d, (tx - 4, ty + 2, tw + 8, th - 4), fill=TILE, outline=TILE, radius=6)
+        rounded(d, (tx - 4, ty + 2, tw - 2, th - 4), fill=TILE, outline=TILE, radius=6)  # ends 8 px before "kg"
     image = big.resize((w, h), Image.LANCZOS)
     image.alpha_composite(icon("target", 22, NAV_INK, px=1.5, cut=TILE), (16, 16))
     t = ImageDraw.Draw(image)
