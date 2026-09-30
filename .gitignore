@@ -1,0 +1,6 @@
+__pycache__/
+.pytest_cache/
+*.pyc
+# customer projects and their backups never go in the repo
+*.dpa
+*.bak

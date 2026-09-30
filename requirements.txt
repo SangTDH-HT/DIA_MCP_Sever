@@ -1,0 +1,4 @@
+mcp            # MCP server (dpa_mcp.py)
+pillow         # rendering card, button and page pictures
+pymupdf        # rasterising Lucide SVG icons
+pytest         # tests/ - they read real .dpa projects under C:\OTL
