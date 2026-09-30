@@ -37,7 +37,7 @@ flowchart LR
 git clone https://github.com/SangTDH-HT/DIA_MCP_Sever
 cd DIA_MCP_Sever
 pip install -r requirements.txt
-powershell -File install-skill.ps1          # skill delta-hmi-style cho Claude Code
+powershell -File install-skill.ps1          # skill delta-hmi-style + diascreen cho Claude Code
 
 python render_dpa.py C:\OTL\SILO_Ban_Moi\3.HMI_SILO\HMI_Silo.dpa out   # vẽ mọi screen ra PNG
 python build_fill_page.py C:\OTL\SILO_Ban_Moi\3.HMI_SILO\HMI_Silo.dpa C:\OTL\SILO_Ban_Moi\2.Icon_HMI
@@ -65,6 +65,7 @@ build_calibration_page.py  Hiệu chỉnh bồn cân
 build_info_pages.py     About + Cài đặt bồn cân (18 thông số có giới hạn nhập)
 render_dpa.py           vẽ screen ra PNG từ kho ảnh của chính dự án (ảnh chỉ để duyệt ở máy, không commit)
 skills/delta-hmi-style/ skill Claude Code: token, lưới 1024x600, thành phần, bẫy .dpa
+skills/diascreen/       skill tra sách DIAScreen 1.6.1 theo từng đối tượng + khoá .dpa thật
 docs/kien-thuc-dpa.md   định dạng .dpa và mọi lần vấp, kèm lý do
 assets/lucide/          icon Lucide (ISC)
 tests/                  round-trip byte-identical trên 14 dự án thật

@@ -76,16 +76,17 @@ CARD_D = (100, 478, 916, 106)
 R1_LABEL, R1 = 136, 148          # row 1 of card A: label centre, control top
 R2_LABEL, R2 = 200, 212
 CTRL_H = 36
-SILO_FIELD = (112, R1, 150, CTRL_H)
-POINTS_FIELD = (112, R2, 150, CTRL_H)
-TARE_BTN, TARE_UNDO = (284, R1, 92, CTRL_H), (382, R1, 52, CTRL_H)
-ZERO_BTN, ZERO_UNDO = (458, R1, 92, CTRL_H), (556, R1, 52, CTRL_H)
-LATCHED = (632, R1, 150, CTRL_H)
-FRAMES = (806, R1, 198, CTRL_H)
-POINT_FIELD = (284, R2, 150, CTRL_H)
-WEIGHT = (458, R2, 210, CTRL_H)
-APPLY_BTN, CANCEL_BTN = (680, R2, 204, CTRL_H), (892, R2, 112, CTRL_H)
-DIVIDERS = ((272, 120, 248), (446, 120, 248), (620, 120, 184), (794, 120, 184))
+# Silo names can be long: the first column takes the room, the two read-outs stay just wider than their labels.
+SILO_FIELD = (112, R1, 266, CTRL_H)
+POINTS_FIELD = (112, R2, 266, CTRL_H)
+TARE_BTN, TARE_UNDO = (400, R1, 92, CTRL_H), (498, R1, 52, CTRL_H)
+ZERO_BTN, ZERO_UNDO = (574, R1, 92, CTRL_H), (672, R1, 52, CTRL_H)
+LATCHED = (748, R1, 116, CTRL_H)
+FRAMES = (888, R1, 116, CTRL_H)
+POINT_FIELD = (400, R2, 150, CTRL_H)
+WEIGHT = (574, R2, 178, CTRL_H)
+APPLY_BTN, CANCEL_BTN = (762, R2, 140, CTRL_H), (910, R2, 94, CTRL_H)
+DIVIDERS = ((388, 120, 248), (562, 120, 248), (736, 120, 184), (876, 120, 184))
 
 TABLE_X, TABLE_W, FIRST_COL = 112, 892, 200
 HEAD_Y, HEAD_H, TROW_H = 346, 26, 30
@@ -140,9 +141,9 @@ def card_a() -> Image.Image:
     image = big.resize(CARD_A[2:], Image.LANCZOS)
     t = ImageDraw.Draw(image)
     section_head(t, 112, 120, "HIỆU CHỈNH", CARD_A)
-    for x, words in ((112, "Chọn silo"), (284, "Trừ bì"), (458, "Zero"), (632, "Điểm đang chốt"), (806, "Số khung đã đọc")):
+    for x, words in ((112, "Chọn silo"), (400, "Trừ bì"), (574, "Zero"), (748, "Điểm đang chốt"), (888, "Số khung đã đọc")):
         label(t, x, R1_LABEL, words, CARD_A)
-    for x, words in ((112, "Số điểm"), (284, "Điểm hiệu chỉnh"), (458, "Trọng lượng (kg)")):
+    for x, words in ((112, "Số điểm"), (400, "Điểm hiệu chỉnh"), (574, "Trọng lượng (kg)")):
         label(t, x, R2_LABEL, words, CARD_A)
     return image
 

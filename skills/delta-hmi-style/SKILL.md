@@ -5,6 +5,8 @@ description: Phong cách và cách dựng màn hình HMI Delta (DIAScreen/DOPSof
 
 # Phong cách HMI Delta
 
+Thuộc tính / giới hạn / cách dùng từng đối tượng theo sách DIAScreen → skill `diascreen` (tra theo đối tượng trước khi làm). Skill này chỉ lo phong cách và cách dựng bằng script.
+
 Mẫu chuẩn: dự án `C:\OTL\SILO_Ban_Moi\3.HMI_SILO\HMI_Silo.dpa`. Thư mục dự án (Sáng đặt 30/09):
 
 | Thư mục | Chứa |
