@@ -41,7 +41,11 @@ TILES = (  # screen, label, icon
 
 # Pages with a builder of their own: their title and content come from it, and
 # this script only refreshes their side bar and back link.
-OWN_CONTENT = {"Set_Calibration"}   # build_calibration_page.py
+OWN_CONTENT = {  # page -> keeps this script's "< Settings" link (the others close with their own X)
+    "Set_Calibration": True,     # build_calibration_page.py
+    "Set_Parameter": False,      # build_info_pages.py
+    "Set_About": False,          # build_info_pages.py
+}
 
 # Content area x 93..1024, y 59..600.
 LEFT = 133
@@ -167,7 +171,8 @@ def main(path: str, asset_dir: str) -> None:
         page = subs[screen]
         for item in nav:  # side bar with Setting lit, as on the Setting page
             edit.clone_element(project, item, page)
-        goto_button(page, "st_back", setting, BACK[0], BACK[1], "st_back")
+        if OWN_CONTENT.get(screen, True):
+            goto_button(page, "st_back", setting, BACK[0], BACK[1], "st_back")
         if screen not in OWN_CONTENT:
             picture(page, f"st_title_{screen}", SUB_TITLE[0], SUB_TITLE[1])
 

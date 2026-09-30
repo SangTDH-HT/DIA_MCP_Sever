@@ -388,6 +388,9 @@ def build(project: Project, donor: Project, asset_dir: str, p: str) -> None:
                 item.section.set(key, A[name])
         item.section.set("IntNum", digits)
         item.section.set("DotNum", decimals)
+        if cfg["entry"] and template is tpl_entry:  # one signed word like the displays, value x10 - not the donor's 2-word REAL
+            item.section.set("MemFmt", 2)
+            item.section.set("MemLen", 1)
         item.section.set("Style", 3)
         text_style(item, size, colour, True, align)
         return item

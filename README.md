@@ -62,6 +62,7 @@ build_fill_page.py      Home_Fill + mặt dùng chung (START/DỪNG, công tắc
 build_home_pages.py     Home_Discharge (Xả liệu) + Home_Blend (Công thức)
 build_setting_page.py   Settings: lưới 8 ô + 8 trang con
 build_calibration_page.py  Hiệu chỉnh bồn cân
+build_info_pages.py     About + Cài đặt bồn cân (18 thông số có giới hạn nhập)
 render_dpa.py           vẽ screen ra PNG từ kho ảnh của chính dự án (ảnh chỉ để duyệt ở máy, không commit)
 skills/delta-hmi-style/ skill Claude Code: token, lưới 1024x600, thành phần, bẫy .dpa
 docs/kien-thuc-dpa.md   định dạng .dpa và mọi lần vấp, kèm lý do

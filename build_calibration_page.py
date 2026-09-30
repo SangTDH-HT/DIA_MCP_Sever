@@ -356,6 +356,9 @@ def main(path: str, asset_dir: str) -> None:
                 item.section.set(key, address or A[name])
         item.section.set("IntNum", digits)
         item.section.set("DotNum", decimals)
+        if entry:  # one signed word like the displays, value x10 - not the donor's 2-word REAL
+            item.section.set("MemFmt", 2)
+            item.section.set("MemLen", 1)
         item.section.set("Style", 3)
         text_style(item, size, VALUE, True, align)
         return item

@@ -15,6 +15,7 @@ Code mẫu ở `C:\Tia_Claude\DeltaDpa_src`:
 | `build_home_pages.py` | Xả liệu + Công thức (tiếng Việt), một bố cục hai biến thể qua `PAGES` |
 | `build_setting_page.py` | trang menu: tiêu đề 34 đậm + vạch xanh `#4A84B6` 44x4, lưới ô 202x176 cách 14 (icon Lucide 56 + nhãn 18), trang con khung trống có "‹ Settings" |
 | `build_calibration_page.py` | trang biểu mẫu (Set_Calibration): các khối thẻ xếp dọc, nhãn 14 trên ô cao 36, giếng `TILE` cho số đọc, ô nhập viền `FIELD_LINE`, nút chính tối `#5A6068` (nhấn `#43484F`) / nút phụ trắng, bảng 4 kênh (hàng tiêu đề `#E9EEF3`), ô chọn kích thước bất kỳ; ô ở đáy trang mở danh sách **lên trên** (`UP`) |
+| `build_info_pages.py` | About (cả trang là một ảnh tĩnh + nút ✕ về Settings, logo lấy phần biểu tượng của `OTL-logo-square-01.png`) và Cài đặt bồn cân (3 thẻ × 6 dòng: nhãn 14/13 một dòng hoặc ngắt ở "–", khoảng giới hạn 12 xám, ô nhập 80x40 có `MinValue/MaxValue`) |
 
 Trang mới: sao chép cách làm của `build_home_pages.py`, import mặt dùng chung từ `build_fill_page`, **đừng vẽ lại theo thói quen**.
 
@@ -77,6 +78,7 @@ Icon: Lucide ở `C:\Users\Admin\.tia-openness\state\lucide`; thiếu thì tải
 - `FontAlign` là bit: 1 trái, 2 giữa, 4 phải, +32 giữa dọc → **33 trái, 34 giữa, 36 phải**. 35 = trái+giữa, panel vẽ lệch.
 - `Style=3` = Transparent (không nền, không viền) cho ô số/ô chữ và nút mặt ảnh.
 - Cỡ phông theo từng ngôn ngữ `FontSize0/1`, không có `FontSize`. **Phần tử dùng cỡ chẵn**: DIAScreen lưu là đổi 15 → 14 (chữ trong ảnh thì cỡ nào cũng được). Dự án một ngôn ngữ: DIAScreen xoá các khoá `...1` khi lưu - so bản trước/sau thì bỏ qua chúng.
+- **Ô nhập 6.1 donor là REAL 2 word** (`MemFmt=5, MemLen=2`) → đặt `MemFmt=2, MemLen=1` (1 word, giá trị x10 như ô hiển thị) nếu không sẽ chồng lên địa chỉ kế tiếp. Giới hạn nhập: `MinValue`/`MaxValue` theo đơn vị hiển thị ("30.0").
 - Goto 1.10 chỉ có một trạng thái → ô menu không có mặt "đang nhấn".
 - `Section.set()` không thêm khoá mới. Set Constant 1.7 không có khoá ảnh → thay `states[0].items` bằng bản sao state của Momentary 1.1.
 - Macro: `dpa/macro.screen_statement()` sinh `OPENSCREEN`/`CLOSESUBSCREEN` đúng byte; `set_macro()` gán, độ dài gồm CRLF.
