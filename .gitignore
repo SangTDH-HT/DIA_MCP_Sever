@@ -4,6 +4,8 @@ __pycache__/
 # customer projects and their backups never go in the repo
 *.dpa
 *.bak
-# screen renders stay on this machine (only the banner is published)
+# no HMI images in the repo: screen renders, banner and drawings stay on this machine
 docs/screens/
 out/
+docs/brand/
+assets/drawings/

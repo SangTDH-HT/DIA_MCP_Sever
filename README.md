@@ -1,6 +1,5 @@
-<p align="center">
-  <img src="docs/brand/banner.png" alt="delta-hmi-toolkit - dựng màn hình HMI Delta DIAScreen bằng code" width="100%">
-</p>
+<h1 align="center">DIA_MCP_Sever</h1>
+<p align="center">MCP server và bộ công cụ dựng màn hình HMI Delta DIAScreen bằng code.</p>
 
 <p align="center">
   <img alt="Python 3.12" src="https://img.shields.io/badge/python-3.12-4A84B6?style=flat-square">
@@ -35,8 +34,8 @@ flowchart LR
 ## Bắt đầu nhanh
 
 ```powershell
-git clone https://github.com/SangTDH-HT/delta-hmi-toolkit
-cd delta-hmi-toolkit
+git clone https://github.com/SangTDH-HT/DIA_MCP_Sever
+cd DIA_MCP_Sever
 pip install -r requirements.txt
 powershell -File install-skill.ps1          # skill delta-hmi-style cho Claude Code
 
@@ -66,7 +65,7 @@ build_calibration_page.py  Hiệu chỉnh bồn cân
 render_dpa.py           vẽ screen ra PNG từ kho ảnh của chính dự án (ảnh chỉ để duyệt ở máy, không commit)
 skills/delta-hmi-style/ skill Claude Code: token, lưới 1024x600, thành phần, bẫy .dpa
 docs/kien-thuc-dpa.md   định dạng .dpa và mọi lần vấp, kèm lý do
-assets/                 icon Lucide (ISC) và hình vẽ gốc
+assets/lucide/          icon Lucide (ISC)
 tests/                  round-trip byte-identical trên 14 dự án thật
 ```
 
