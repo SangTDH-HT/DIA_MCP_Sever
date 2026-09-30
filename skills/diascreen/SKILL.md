@@ -42,6 +42,7 @@ thật / emulator.
 | Địa chỉ: `$`, `$M` (giữ khi mất điện), `*$` gián tiếp, EM, **tham số nội bộ** (tài khoản, USB, mạng, giờ, VNC…), địa chỉ PLC, Tag/UDT | `references/addresses.md` |
 | COM/Ethernet, tham số chung, **mã lỗi truyền thông** (cả S7), Modbus slave mapping, EIP | `references/communication.md` |
 | Biên dịch, mô phỏng online/offline, Monitor IO, tải/xuất file màn hình, firmware, kho ảnh/chữ/phông, đa ngôn ngữ, Duplicate, Scheduler, Address Conversion, Change Model, Environment, trả góp, in, OPC UA/MQTT/Cloud | `references/project-tools.md` |
+| **Macro**: loại (On/Off, Before/After, Screen Open/Close/Cycle, Submacro, Initial, Background, Clock), toàn bộ lệnh, mã lỗi, opcode `.dpa` | `references/macro.md` |
 | Menu hệ thống trên panel, HMI Doctor | `references/system-menu.md` |
 | Khoá `.dpa` thật theo từng loại (mã 1.1…19.10) | `references/dpa-khoa-theo-loai.md` |
 

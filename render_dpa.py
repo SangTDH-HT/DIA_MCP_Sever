@@ -90,8 +90,45 @@ def draw_text(canvas: Image.Image, element, text: str) -> None:
     ImageDraw.Draw(canvas).text((tx, y + h / 2), text, font=face, fill=colour(state.get("FontColor")), anchor=anchor_x + "m")
 
 
+# Sample rows for an Alarm History Table: (column key -> text), state colour key.
+ALARM_ROWS = (
+    ({2: "09/30/2026 10:48:05", 3: "Quá tải động cơ hút chân không", 5: "", 6: "1"}, "RowActiveColor"),
+    ({2: "09/30/2026 10:41:12", 3: "Bồn đầy", 5: "", 6: "2"}, "RowAckColor"),
+    ({2: "09/30/2026 09:15:40", 3: "Khối lượng thấp", 5: "09/30/2026 09:17:02", 6: "1"}, "RowNormalColor"),
+)
+
+
+def draw_alarm_table(canvas: Image.Image, element) -> None:
+    """An 11.1 table is drawn by the panel; sketch its frame, title row and three rows."""
+    s, state = element.section, element.states[0]
+    x, y, w, h = element.rect
+    d = ImageDraw.Draw(canvas)
+    d.rectangle((x, y, x + w - 1, y + h - 1), fill=colour(state.get("BgColor")), outline=colour(s.get("BorderColor")))
+    size = s.get_int("FieldFontSize", 12)
+    face = ImageFont.truetype(str(FONTS / "arial.ttf"), size)
+    cols = sorted((s.get_int(f"DisplayOrder{n}"), n) for n in range(1, 9) if s.get(f"EnableCol{n}") == "1")
+    row_h = size + 16
+    d.rectangle((x + 1, y + 1, x + w - 2, y + row_h), fill=colour(s.get("TitleBkgColor")))
+    rows = [({n: s.entries(f"TitleTextLen{n}-000")[0].text for _, n in cols}, None)] + list(ALARM_ROWS)
+    for r, (cells, key) in enumerate(rows):
+        top = y + 1 + row_h * r
+        if key and s.get("RowColorMode") == "1":
+            d.rectangle((x + 1, top, x + w - 2, top + row_h - 1), fill=colour(s.get(key)))
+        d.line((x + 1, top + row_h, x + w - 2, top + row_h), fill=colour(s.get("GridColor")))
+        cx = x
+        for _, n in cols:
+            fill = colour(s.get("TitleFontColor")) if key is None else colour(state.get("FontColor"))
+            d.text((cx + 8, top + row_h / 2), cells.get(n, ""), font=face, fill=fill, anchor="lm")
+            cx += s.get_int(f"ColWidth{n}", 0)
+            if cx < x + w - 2:
+                d.line((cx, top, cx, top + row_h), fill=colour(s.get("GridColor")))
+
+
 def draw_elements(canvas: Image.Image, screen, bank: dict[int, Image.Image]) -> None:
     for element in screen.elements:
+        if element.type_code == "11.1":
+            draw_alarm_table(canvas, element)
+            continue
         state = element.states[0] if element.states else None
         if state is not None and state.get("Picture Name") and state.get_int("PictureOffset") in bank:
             art = bank[state.get_int("PictureOffset")]

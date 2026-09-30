@@ -4,6 +4,7 @@
 
 - **Write / Read Address**: bộ nhớ trong hoặc thanh ghi PLC; loại nhập chỉ là Word (bit dùng `$n.b`). Chỉ đặt Write thì Read = Write.
 - **Write / Read Offset Address**: địa chỉ thật = Địa chỉ + (giá trị ô Offset) × cỡ [Data Type]. Offset Length chỉ chọn được trên Numeric Display/Entry.
+  Sách DOPSoft phụ lục D (tr.2076–2083): giá trị offset **không dấu 0–65535**; chỉ đặt Write Offset thì Read Offset = Write Offset; nút không có Data Type thì đơn vị là **bit** (`$3000.0` + 3 → `$3000.3`); Double Word nhảy 2 word; **Character Display/Entry tính theo Word, KHÔNG theo String Length** → muốn hiện chuỗi thứ n (mỗi chuỗi 10 word) thì ô offset phải = n × 10. Có Offset: nút bit/Multistate/Set Value/Constant/Tăng-Giảm, Meter, Bar, Pipe(1)(2)(6)(7), Pie, mọi Indicator, Numeric/Character/Message Display, Moving Sign, State/Animated Graphic, mọi ô nhập, Slider, ComboBox, ListBox, Line/Rectangle/Circle/Text. Địa chỉ PLC dài Double Word (vd DVP C200–C255) không hỗ trợ.
 - Data Type Word / Double Word / Quad Word; Data Format BCD, Signed BCD, Signed/Unsigned Decimal, Hex, Binary, **Floating chỉ với Double/Quad Word**.
 
 ## Style (Sách)
@@ -45,7 +46,7 @@ X, Y, W, H là hằng số **hoặc địa chỉ** → dời/đổi cỡ phần 
 | Sách | Khoá | Ghi chú |
 |---|---|---|
 | Read/Write Address | `ReadVar` / `WriteVar` (+`ReadLink/WriteLink`, `ReadMemType/WriteMemType`) | `$205`, `$210.1`, `{EtherLink1}2@DB13.DBX1954.1` |
-| Offset Address | `OffsetReadVar`, `OffsetWriteVar`, `OffsetMemLen`, `OffsetMemFmt` | **Chưa kiểm** - chỉ có ở phần tử đời mới (xem dpa-khoa-theo-loai) |
+| Offset Address | `OffsetReadVar`, `OffsetWriteVar`, `OffsetMemLen`, `OffsetMemFmt` | chỉ có ở phần tử đời mới (xem dpa-khoa-theo-loai); chưa kiểm trên panel |
 | Data Type / Format | `MemLen` (1 = Word, 2 = Double), `MemFmt` (2 = Signed Decimal 16-bit như ô hiển thị Silo; 5 = Floating) | Đã kiểm 30/09: donor 6.1 là REAL 2 word, chồng địa chỉ kế |
 | Style | `Style`: **3 = Transparent** (ô số/chữ); nút Style 3 = không thân, chỉ ảnh | Đã kiểm |
 | Transparency | `opacity` | chưa dùng |

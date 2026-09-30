@@ -5,7 +5,7 @@
 | Loại | Dùng làm gì | Ghi chú |
 |---|---|---|
 | **Screen** | màn hình chính, cỡ cố định theo model | có thể gắn **Base Screen** (Single/Multiple): kéo screen vào vùng Base; phần tử của base không sửa được từ screen con |
-| **Subscreen** | cửa sổ nổi trên screen; gọi bằng macro hoặc alarm; hoặc nhúng bằng phần tử *Embedded Subscreen* | **không** đặt được Embedded Subscreen, Picture Viewer, Gantt Chart trên subscreen |
+| **Subscreen** | cửa sổ nổi trên screen; gọi bằng macro hoặc alarm; hoặc nhúng bằng phần tử *Embedded Subscreen* (DOPSoft tr.1331: số subscreen, X, Y lấy từ **word bộ nhớ trong** → đổi nội dung một vùng trên màn hình theo địa chỉ; có Invisible Address; không đặt trên subscreen) | **không** đặt được Embedded Subscreen, Picture Viewer, Gantt Chart trên subscreen |
 | Keypad Screen | bàn phím tự làm (kéo Keypad-Template từ Element Bank, vd `KP(1)_01_Big`) | không làm màn hình khởi động; thuộc tính như Subscreen |
 | Print Screen | trang in (chỉ HMI có máy in) | Goto Screen không được trỏ tới |
 | Template Screen | mẫu PDF (header trên vạch đỏ, footer đánh số trang) cho nút Template Output | kiểu này không đổi được |
