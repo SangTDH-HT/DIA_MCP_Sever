@@ -68,13 +68,13 @@ ROWS, ROW_H = 6, 36
 NAME_CHARS, MESSAGE_CHARS = 20, 40
 
 # Panel layout: content x 100..1016, y 66..592.
-CARD_A = (100, CONTENT_TOP, 916, 152)
-STATUS = (100, 278, 916, 34)
-CARD_C = (100, 318, 916, 148)
-CARD_D = (100, 472, 916, 110)
+CARD_A = (100, CONTENT_TOP, 916, 158)
+STATUS = (100, 272, 916, 36)
+CARD_C = (100, 318, 916, 150)
+CARD_D = (100, 478, 916, 106)
 
-R1_LABEL, R1 = 150, 162          # row 1 of card A: label centre, control top
-R2_LABEL, R2 = 212, 224
+R1_LABEL, R1 = 136, 148          # row 1 of card A: label centre, control top
+R2_LABEL, R2 = 200, 212
 CTRL_H = 36
 SILO_FIELD = (112, R1, 150, CTRL_H)
 POINTS_FIELD = (112, R2, 150, CTRL_H)
@@ -85,18 +85,18 @@ FRAMES = (806, R1, 198, CTRL_H)
 POINT_FIELD = (284, R2, 150, CTRL_H)
 WEIGHT = (458, R2, 210, CTRL_H)
 APPLY_BTN, CANCEL_BTN = (680, R2, 204, CTRL_H), (892, R2, 112, CTRL_H)
-DIVIDERS = ((272, 134, 260), (446, 134, 260), (620, 134, 198), (794, 134, 198))
+DIVIDERS = ((272, 120, 248), (446, 120, 248), (620, 120, 184), (794, 120, 184))
 
 TABLE_X, TABLE_W, FIRST_COL = 112, 892, 200
-HEAD_Y, HEAD_H, TROW_H = 344, 26, 30
+HEAD_Y, HEAD_H, TROW_H = 346, 26, 30
 CH_W = (TABLE_W - FIRST_COL) // 4
 
-D_LABEL, D = 508, 522
+D_LABEL, D = 512, 526
 FUNC_FIELD = (112, D, 236, CTRL_H)
 FUNC_NOW = (372, D, 130, CTRL_H)
 FUNC_NEW = (514, D, 130, CTRL_H)
 READ_BTN, WRITE_BTN = (668, D, 160, CTRL_H), (840, D, 164, CTRL_H)
-HINT = (514, 478, 490, 20)
+HINT = (514, 486, 490, 20)
 
 
 # --- pictures -----------------------------------------------------------------
@@ -139,7 +139,7 @@ def card_a() -> Image.Image:
     entry_box(d, WEIGHT, CARD_A)
     image = big.resize(CARD_A[2:], Image.LANCZOS)
     t = ImageDraw.Draw(image)
-    section_head(t, 112, 134, "HIỆU CHỈNH", CARD_A)
+    section_head(t, 112, 120, "HIỆU CHỈNH", CARD_A)
     for x, words in ((112, "Chọn silo"), (284, "Trừ bì"), (458, "Zero"), (632, "Điểm đang chốt"), (806, "Số khung đã đọc")):
         label(t, x, R1_LABEL, words, CARD_A)
     for x, words in ((112, "Số điểm"), (284, "Điểm hiệu chỉnh"), (458, "Trọng lượng (kg)")):
@@ -191,7 +191,7 @@ def card_d() -> Image.Image:
     entry_box(d, FUNC_NEW, CARD_D)
     image = big.resize(CARD_D[2:], Image.LANCZOS)
     t = ImageDraw.Draw(image)
-    section_head(t, 112, 488, "THAM SỐ CHỨC NĂNG", CARD_D)
+    section_head(t, 112, 494, "THAM SỐ CHỨC NĂNG", CARD_D)
     for x, words in ((112, "Chức năng"), (372, "Đang có"), (514, "Giá trị mới"), (668, "Đọc về"), (840, "Ghi xuống")):
         label(t, x, D_LABEL, words, CARD_D)
     return image
@@ -385,7 +385,7 @@ def main(path: str, asset_dir: str) -> None:
     number(page, "cal_latched", LATCHED, 18, 2, 0)
     number(page, "cal_frames", FRAMES, 18, 5, 0)
     number(page, "cal_weight", (WEIGHT[0] + 8, WEIGHT[1], WEIGHT[2] - 16, WEIGHT[3]), 18, 5, 1, entry=True)
-    text(page, "cal_message", (STATUS[0] + 142, STATUS[1] + 5, 760, 24), 14, False, MESSAGE_CHARS, INK)
+    text(page, "cal_message", (STATUS[0] + 142, STATUS[1] + 6, 760, 24), 14, False, MESSAGE_CHARS, INK)
     for c in range(4):
         x = TABLE_X + FIRST_COL + CH_W * c + 4
         for r, (key, size) in enumerate((("cal_zero_ch", 16), ("cal_net_ch", 18), ("cal_tare_ch", 16))):

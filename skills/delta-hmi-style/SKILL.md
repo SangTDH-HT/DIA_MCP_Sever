@@ -25,7 +25,7 @@ Trang mới: sao chép cách làm của `build_home_pages.py`, import mặt dùn
 - **Phông Arial** (`arial.ttf`, đậm `arialbd.ttf`), kể cả chữ trong ảnh. Ngôn ngữ theo mẫu Sáng đưa (Fill tiếng Anh, Xả/Trộn tiếng Việt) - hỏi nếu chưa rõ.
 - **Ô số hiển thị luôn in đậm**, căn phải sát trước đơn vị. Cỡ theo cặp: STATUS 18 · giá trị thẻ quy trình 24 · cặp áp suất/thời gian 20 · cặp thẻ nhỏ 16 · khối lượng lớn 64 màu `#2B3644`.
 - **Tiêu đề** thẻ lớn: đậm 15, ô icon 34x34 nền `TILE` bên trái. Tiêu đề thẻ quy trình: thường 12, gạch mảnh + chấm dưới (`card_title`), quá dài thì thu tới 11 - không nhỏ hơn; hết chỗ thì nới thẻ.
-- **Một hướng cho mọi trang cùng loại** (Sáng 30/09: "đừng làm khác nhau, nó sẽ không đồng bộ"). Trang con của Settings: tiêu đề đậm 34 bên trái (100, 66), nút ✕ trong ô 36x36 viền `FIELD_LINE` bên phải (972, 75) về Settings, nội dung từ `CONTENT_TOP` = 120. Phần đầu này **chỉ** `build_setting_page.py` vẽ (phần tử `st_head_*`, `st_close`), script nội dung không tự vẽ tiêu đề/nút quay về và không xoá `st_`. Mẫu mới có kiểu đầu trang khác thì vẫn theo kiểu chung, hỏi Sáng nếu muốn đổi cả loạt.
+- **Một hướng cho mọi trang cùng loại** (Sáng 30/09: "đừng làm khác nhau, nó sẽ không đồng bộ"). Trang con của Settings: link "‹ Settings" (127, 70) về Settings, vạch mảnh `FIELD_LINE`, tên trang đậm 18 (250, 66), nội dung từ `CONTENT_TOP` = 104 - kiểu trang Hiệu chỉnh, Sáng chốt 30/09 (em từng hiểu nhầm "hướng đầu tiên" là kiểu About có ✕). Phần đầu này **chỉ** `build_setting_page.py` vẽ (phần tử `st_head_*`, `st_back`), script nội dung không tự vẽ tiêu đề/nút quay về và không xoá `st_`. Mẫu mới có kiểu đầu trang khác thì vẫn theo kiểu chung, hỏi Sáng nếu muốn đổi cả loạt.
 - Bỏ trang trí thừa: không dấu tick trên nút đang chọn, không dòng "Press to begin", không khung lồng khung - dùng đường kẻ mảnh.
 - Nhãn ALL-CAPS chỉ cho tiêu đề thẻ (theo mẫu Sáng); nút dùng chữ thường/hoa theo mẫu.
 
@@ -72,7 +72,7 @@ Lề trong thẻ 16 px. Mọi phần tử trong cột phải thẳng lề x 800.
 - **Nút thiết bị trong thẻ** `valve_button_face`: ô 62x70 icon + nhãn, xám khi nghỉ, trắng viền đậm khi bật.
 - Ô nhập số: 6.1 donor `scr_Discharge` #52, vẽ giếng `TILE` phía sau để báo nhập được.
 
-Icon: Lucide ở `C:\Users\Admin\.tia-openness\state\lucide`; thiếu thì tải `https://unpkg.com/lucide-static@latest/icons/<tên>.svg`. Hình vẽ tay của Sáng ở `C:\OTL\SILO_Ban_Moi\Icon_HMI` (Silo_3 vẽ đỏ → `inked()` đổi về NAV_INK).
+Icon: Lucide ở `DeltaDpa_src/assets/lucide`; thiếu thì tải `https://unpkg.com/lucide-static@latest/icons/<tên>.svg` vào đó. Hình vẽ tay của Sáng ở `DeltaDpa_src/assets/drawings` (chỉ trên máy, không đẩy GitHub; Silo_3 vẽ đỏ → `inked()` đổi về NAV_INK). Ảnh sinh ra ghi vào `C:\OTL\SILO_Ban_Moi\2.Icon_HMI` (tham số thứ hai của mọi script) - Sáng đã dọn thư mục dự án 30/09, đừng tạo lại `Icon_HMI`.
 
 ## Bẫy .dpa (đã kiểm)
 

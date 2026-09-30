@@ -8,7 +8,7 @@ Parameter   "CAI DAT BON CAN": three cards - discharge, filling, general and
             speed - of six settings each. A setting is a label, its range
             under it and a numeric entry limited to that range.
 
-Title and X come from build_setting_page.py, like every sub-page; this script
+Back link and title come from build_setting_page.py, like every sub-page; this script
 draws the content from CONTENT_TOP down and leaves the st_ elements alone. Entries are one signed word, value x10, like every number on
 this HMI. No PLC addresses exist yet: ADDRESSES is the list to rebind.
 Re-runnable: elements named "ab_" / "pr_" are removed first.
@@ -63,8 +63,8 @@ CARDS = (
 )
 ADDRESSES = {f"pr_{c + 1}_{r + 1}": f"${700 + 6 * c + r}" for c in range(3) for r in range(6)}  # value x10
 
-CARD_Y, CARD_H, CARD_W, GAP = CONTENT_TOP, 466, 297, 12
-ROW_TOP, ROW_H = 50, 69
+CARD_Y, CARD_H, CARD_W, GAP = CONTENT_TOP, 472, 297, 12
+ROW_TOP, ROW_H = 52, 70
 BOX_W, BOX_H = 80, 40
 
 

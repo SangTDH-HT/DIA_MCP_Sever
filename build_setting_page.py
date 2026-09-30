@@ -8,9 +8,9 @@ is one Goto Screen whose face is rendered here (Lucide icon + label).
 
 Each tile opens a page of its own on the Setting frame (side bar, Setting lit).
 Every one of those sub-pages opens the same way, and it is drawn here and
-nowhere else (Sang 30/09: one direction, the About mockup's): the title large
-on the left, an X in a box on the right back to Settings, content from
-CONTENT_TOP down. Builders of a page's content (build_calibration_page.py,
+nowhere else (Sang 30/09: one direction, the calibration page's): a
+"< Settings" link back, a thin rule, the page title, content from CONTENT_TOP
+down. Builders of a page's content (build_calibration_page.py,
 build_info_pages.py) never touch the st_ elements.
 
 Re-runnable: elements named "st_" (and the sub-pages' side bar) are removed
@@ -27,7 +27,7 @@ from PIL import Image, ImageDraw
 import build_fill_page as fill
 import build_silo_frame as frame
 from build_fill_page import FIELD_LINE, clear_links, rounded
-from build_silo_frame import INK, NAV_INK, NAV_ON, PAGE, WHITE, font, icon, rgb
+from build_silo_frame import INK, MUTED, NAV_INK, NAV_ON, PAGE, WHITE, font, icon, rgb
 from dpa import edit
 from dpa.model import Project, Screen
 
@@ -49,9 +49,9 @@ TITLE = (LEFT, 100, 400, 64)          # Settings title picture: words + the blue
 TILE_W, TILE_H, GAP = 202, 176, 14
 TILE_Y = (180, 180 + TILE_H + GAP)
 
-HEAD = (100, 66, 860, 54)             # sub-page title
-CLOSE = (972, 75, 36, 36)             # sub-page X, back to Settings
-CONTENT_TOP = 120                     # sub-page content starts here
+BACK = (LEFT - 6, 70, 120, 26)        # sub-page "< Settings" link
+HEAD = (250, 66, 500, 30)             # sub-page rule + title
+CONTENT_TOP = 104                     # sub-page content starts here
 
 
 def title_face(words: str) -> Image.Image:
@@ -69,17 +69,17 @@ def title_face(words: str) -> Image.Image:
 def head_face(words: str) -> Image.Image:
     _, _, w, h = HEAD
     image = Image.new("RGBA", (w, h), rgb(PAGE) + (255,))
-    ImageDraw.Draw(image).text((0, h / 2), words, font=font("arialbd.ttf", 34), fill=INK, anchor="lm")
+    t = ImageDraw.Draw(image)
+    t.line((0, 6, 0, h - 6), fill=FIELD_LINE)
+    t.text((14, h / 2), words, font=font("arialbd.ttf", 18), fill=INK, anchor="lm")
     return image
 
 
-def close_face() -> Image.Image:
-    _, _, w, h = CLOSE
-    s = 4
-    big = Image.new("RGBA", (w * s, h * s), rgb(PAGE) + (255,))
-    rounded(ImageDraw.Draw(big), (0, 0, w, h), fill=WHITE, outline=FIELD_LINE, radius=6)
-    image = big.resize((w, h), Image.LANCZOS)
-    image.alpha_composite(icon("x", 20, NAV_INK, px=1.75, cut=WHITE), ((w - 20) // 2, (h - 20) // 2))
+def back_face() -> Image.Image:
+    _, _, w, h = BACK
+    image = Image.new("RGBA", (w, h), rgb(PAGE) + (255,))
+    image.alpha_composite(icon("chevron-left", 18, MUTED, px=1.75), (2, (h - 18) // 2))
+    ImageDraw.Draw(image).text((24, h / 2), "Settings", font=font("arial.ttf", 15), fill=MUTED, anchor="lm")
     return image
 
 
@@ -104,7 +104,7 @@ def tile_face(label: str, name: str) -> Image.Image:
 
 
 def render(folder: Path) -> dict[str, Path]:
-    faces = {"st_title": title_face("Settings"), "st_close": close_face()}
+    faces = {"st_title": title_face("Settings"), "st_back": back_face()}
     for screen, label, name in TILES:
         faces[f"st_tile_{screen}"] = tile_face(label, name)
         faces[f"st_head_{screen}"] = head_face(TITLES.get(screen, label.replace("\n", " ")))
@@ -178,7 +178,7 @@ def main(path: str, asset_dir: str) -> None:
         for item in nav:  # side bar with Setting lit, as on the Setting page
             edit.clone_element(project, item, page)
         picture(page, f"st_head_{screen}", HEAD[0], HEAD[1])
-        goto_button(page, "st_close", setting, CLOSE[0], CLOSE[1], "st_close")
+        goto_button(page, "st_back", setting, BACK[0], BACK[1], "st_back")
 
     print(project.save(path))
     print(f"Setting: {len(setting.elements)} elements; sub-pages " + ", ".join(f"{s.name}={s.id}" for s in subs.values()))

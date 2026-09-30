@@ -34,7 +34,7 @@ from dpa.model import Project
 DONOR = r"C:\OTL\OTL_SILO\OTL_Silo6\Code_Silo_AThanh\HMI_AThanh.dpa"
 DONOR_TEXT = r"C:\OTL\Document_Soft\Delta\ConnectDintoolProtoco.dpa"   # Character Display
 DONOR_SET = r"C:\OTL\OTL_SILO\OTL_Silo6\HMI\SiloOld_AThanh.dpa"        # Set Constant
-ICONS = Path(r"C:\OTL\SILO_Ban_Moi\Icon_HMI")
+ICONS = Path(__file__).resolve().parent / "assets" / "drawings"  # Sang's source drawings (kept local, not pushed)
 
 CARD_LINE = "#E1E6EC"
 TILE = "#EEF1F4"         # grey tile behind card icons and the status code
