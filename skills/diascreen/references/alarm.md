@@ -26,5 +26,13 @@ Chưa đặt địa chỉ đọc alarm thì compile báo lỗi.
 `ALARM_COUNT` - tổng số alarm (DOP-100 ghi kích + phục hồi trên một dòng). Control Block: xoá bộ đệm alarm (b3), xoá bộ đếm (b4).
 
 ## Thực tế
-- Silo mới chưa có alarm. OTL-30 (Siemens) có luật riêng ở skill khác - không lẫn.
+- **Silo mới có 8 alarm (30/09)**, dựng bằng `DeltaDpa_src/build_data_page.py`: trang Data, bảng 11.1 `dt_alarms`.
+- Khoá `[Alarm]` (Đã kiểm 30/09, DIAScreen tự lưu giữ nguyên): địa chỉ rời `ContinueAddr=0`; mỗi alarm bit chỉ cần 4 khoá
+  `AlarmEnableNNN=1`, `AlarmVarNNN=$900.0`, `wMessageLenNNN-000` (UTF-16LE + NUL), `AlarmColorNNN` (BGR); khoá còn lại để mặc định thì
+  DIAScreen không ghi. Alarm word thêm `AlarmMemLen/TriggerFmt/TriggerOperatorNNN-001/Max/Min`. Ghi các alarm nối vào cuối section.
+  `AckAllAlarmVar` = bit xác nhận tất cả, `Hold=1` giữ lịch sử khi mất điện.
+- Bảng 11.1: Color Mode = trạng thái là `RowColorMode=1` + `RowActiveColor` (kích) / `RowAckColor` (đã xác nhận) / `RowNormalColor` (phục hồi).
+  Cột: 1 số, 2 giờ kích, 3 nội dung, 4 giờ xác nhận, 5 giờ phục hồi, 6 số lần, 7 nhóm, 8 người thao tác; ẩn = `EnableColN=0`, `DisplayOrderN=60`.
+  DIAScreen nhận các khoá này; **màu hàng theo trạng thái chưa thử trên emulator**.
+- Silo mới chưa có alarm (trước 30/09). OTL-30 (Siemens) có luật riêng ở skill khác - không lẫn.
 - Popup lỗi kiểu OTL-30 trên Delta: dùng **Alarm Screen** (subscreen) gắn vào alarm + Display Auto. Chưa kiểm.

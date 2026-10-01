@@ -23,3 +23,7 @@ Nút chức năng: Zoom In/Out/Reset, cuộn, khoảng thời gian.
 ## Thực tế
 - Trend clone chéo dự án cần `[History]` khai buffer (`HistoryCount`, `ReadVar01`…), không thì compile lỗi `Element buffer is undefined`. Đã gặp 29/09.
 - Configuration > *Retain historical data after screen update*: giữ dữ liệu khi tải lại màn hình, nhưng đổi Read Length/Sample Number/Stamp/Non-volatile/CSV/kiểu file thì vẫn mất.
+- **Trend chạy không cần PLC (Đã kiểm emulator 30/09)**, mẫu `DeltaDpa_src/build_test_trend.py`: đổi mọi địa chỉ PLC của trend sang `$` nội bộ, macro chu kỳ 1 s của screen tự sinh số liệu.
+  - Chạy/dừng = **Enable active bit** của buffer: ON lấy mẫu, OFF dừng tại chỗ, đường đã vẽ giữ nguyên.
+  - Xoá = **Data Clearing bit**: xoá theo **sườn lên**, HMI **không tự hạ cờ** → macro phải hạ về 0, không thì bấm lần hai chỉ ghi 0. Hạ ngay trong cùng lượt macro thì HMI có lúc hụt sườn (bấm 2 lần mới xoá 1) → giữ cờ trọn một lượt (1 s) rồi mới hạ.
+  - Nút ghi **địa chỉ bit** phải `MemLen=0`; để 1 như nút word là compile lỗi `Element address input error`.

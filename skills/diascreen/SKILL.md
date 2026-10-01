@@ -1,12 +1,14 @@
 ---
 name: diascreen
-description: Tra cứu chuẩn Delta DIAScreen 1.6.1 (sách hướng dẫn 767 trang, đọc hết 30/09/2026) theo từng đối tượng - screen/popup, nút, hiển thị, nhập, chỉ thị/ảnh, danh sách/ComboBox/GridBox, đồng hồ/thanh/ống/biểu đồ, bàn phím, alarm, history buffer, recipe, bảo mật/tài khoản, cấu hình/Control Block, địa chỉ bộ nhớ ($, $M, *$, EM, tham số nội bộ), truyền thông/mã lỗi, biên dịch/mô phỏng/tải - kèm khoá .dpa thật và các bẫy đã kiểm. Dùng trước khi thiết kế hoặc lập trình bất kỳ đối tượng nào trên HMI Delta (DOP-100/300, DIAScreen/DOPSoft), khi hỏi "Delta làm được X không", "thuộc tính này ở đâu", "địa chỉ nào giữ khi mất điện". Phong cách giao diện xem skill delta-hmi-style.
+description: Tra cứu chuẩn Delta DIAScreen 1.6.1 (sách 767 trang + macro/offset từ sách DOPSoft 4, đọc 30/09/2026) theo từng đối tượng, gồm toàn bộ lệnh macro - screen/popup, nút, hiển thị, nhập, chỉ thị/ảnh, danh sách/ComboBox/GridBox, đồng hồ/thanh/ống/biểu đồ, bàn phím, alarm, history buffer, recipe, bảo mật/tài khoản, cấu hình/Control Block, địa chỉ bộ nhớ ($, $M, *$, EM, tham số nội bộ), truyền thông/mã lỗi, biên dịch/mô phỏng/tải - kèm khoá .dpa thật và các bẫy đã kiểm. Dùng trước khi thiết kế hoặc lập trình bất kỳ đối tượng nào trên HMI Delta (DOP-100/300, DIAScreen/DOPSoft), khi hỏi "Delta làm được X không", "thuộc tính này ở đâu", "địa chỉ nào giữ khi mất điện". Phong cách giao diện xem skill delta-hmi-style.
 ---
 
 # DIAScreen - tra theo đối tượng
 
-Nguồn: `C:\OTL\SILO_Ban_Moi\1.Document\DELTA_IA_OSW_DIAScreen_V1.6.1_UM_ENG_20250929.pdf`
-(767 trang). Mỗi file `references/` = phần sách về một nhóm đối tượng, viết lại gọn bằng
+Nguồn: `C:\OTL\18.SILO_Ban_Moi\1.Document\DELTA_IA_OSW_DIAScreen_V1.6.1_UM_ENG_20250929.pdf`
+(767 trang) và `Manual_DOPSoft_V4.pdf` cùng thư mục (2093 trang - lấy chương 24 Macro,
+phụ lục D Offset, Embedded Subscreen; phần còn lại trùng sách DIAScreen, mở khi cần ví dụ
+chi tiết từng phần tử - mục lục tr.2–11). Mỗi file `references/` = phần sách về một nhóm đối tượng, viết lại gọn bằng
 tiếng Việt, **cộng** phần "Thực tế" - khoá `.dpa` tương ứng và những gì đã kiểm trên dự án
 thật / emulator.
 
@@ -56,5 +58,5 @@ thật / emulator.
 6. ComboBox chỉ lấy mục gõ sẵn (mỗi state một chữ); danh sách chữ lấy từ địa chỉ → **GridBox** cột String hoặc popup tự dựng. (lists)
 7. **Enhanced Recipe** có tên nhóm Unicode (`ENRCPGNAME`), đổi được trên HMI qua Multi-language Input. (recipe)
 8. Ô nhập có Min/Max theo kiểu dữ liệu; Word signed −32768..32767; "số lẻ" chỉ là định dạng trừ khi Floating (Double Word). (input)
-9. Macro trước/sau chạy khi **người bấm**; nút bị PLC/ macro khác đổi trạng thái thì macro không chạy. Tập lệnh macro **không có trong sách này** (tài liệu macro riêng của Delta). (element-common)
+9. Macro trước/sau chạy khi **người bấm**; nút bị PLC/macro khác đổi trạng thái thì macro không chạy. `OPENSCREEN`/`CLOSESUBSCREEN` **cấm** trong Screen Open/Close/Cycle (lỗi −83). Clock macro chạy hết mỗi lượt, Background chạy N dòng mỗi lượt. (macro)
 10. Mã lỗi truyền thông 0x03 NoResponse, 0x06/0x07 sai lệnh/địa chỉ, 0x20 LinkBroken, 0x24 >16 kết nối; khi ghi thì OR 0x40. (communication)

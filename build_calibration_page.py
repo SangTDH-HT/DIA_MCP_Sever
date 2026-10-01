@@ -276,8 +276,8 @@ LISTS = {
 
 def render(folder: Path) -> dict[str, Path]:
     faces = {
-        "cal_card_a": card_a(), "cal_status": status_face(),
-        "cal_card_c": card_c(), "cal_card_d": card_d(),
+        "cal_card_a": frame.static("cal_card_a", card_a), "cal_status": frame.static("cal_status", status_face),
+        "cal_card_c": frame.static("cal_card_c", card_c), "cal_card_d": frame.static("cal_card_d", card_d),
     }
     for name, (box, words, dark) in BUTTONS.items():
         for p in (0, 1):
@@ -300,6 +300,7 @@ def main(path: str, asset_dir: str) -> None:
     project = Project(path)
     donor = Project(fill.DONOR)
     page = project.screen(SCREEN)
+    frame.remember_labels(project)
     for element in [e for e in page.elements if e.name.startswith("cal_")][::-1]:
         edit.delete_element(project, page, element.index)
 
@@ -337,6 +338,7 @@ def main(path: str, asset_dir: str) -> None:
         for state in item.states:
             state.set("TransColor", bgr(PAGE))
         frame.picture_rect(item, x, y, w, h)
+        frame.labels(project, page, key, x, y)
         return item
 
     def number(screen, name, box, size, digits, decimals, address=None, entry=False, align=CENTRE):

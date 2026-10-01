@@ -311,10 +311,10 @@ def valve_button_face(label: str, name: str, on: bool) -> Image.Image:
 
 def render(folder: Path, p: str, cfg: dict) -> dict[str, Path]:
     faces = {
-        f"{p}_process": process_drawing(),
-        f"{p}_status_bar": status_bar(),
-        f"{p}_weight_card": weight_card(cfg["entry"]),
-        f"{p}_select_card": select_card(cfg["select"], cfg["gear"]),
+        f"{p}_process": frame.static(f"{p}_process", process_drawing),
+        f"{p}_status_bar": frame.static(f"{p}_status_bar", status_bar),
+        f"{p}_weight_card": frame.static(f"{p}_weight_card", weight_card, cfg["entry"]),
+        f"{p}_select_card": frame.static(f"{p}_select_card", select_card, cfg["select"], cfg["gear"]),
         f"{p}_start_0": fill.start_face(False, "BẮT ĐẦU", "DỪNG", 15),
         f"{p}_start_1": fill.start_face(True, "BẮT ĐẦU", "DỪNG", 15),
         f"{p}_mode_0": fill.mode_face(False, ("THỦ CÔNG", "TỰ ĐỘNG"), 12),
@@ -346,6 +346,7 @@ def build(project: Project, donor: Project, asset_dir: str, p: str) -> None:
     cfg = PAGES[p]
     A = cfg["addresses"]
     page = project.screen(cfg["screen"])
+    frame.remember_labels(project)
 
     for element in [e for e in page.elements if e.name.startswith(f"{p}_")][::-1]:
         edit.delete_element(project, page, element.index)
@@ -377,6 +378,7 @@ def build(project: Project, donor: Project, asset_dir: str, p: str) -> None:
         for state in item.states:
             state.set("TransColor", bgr(back))
         frame.picture_rect(item, x, y, w, h)
+        frame.labels(project, page, key, x, y)
         return item
 
     def number(name, box, size, digits, decimals, align=CENTRE, colour=INK, template=None):

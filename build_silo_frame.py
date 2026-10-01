@@ -1,4 +1,4 @@
-"""Build the navigation frame of the new Silo HMI (C:\\OTL\\SILO_Ban_Moi).
+"""Build the navigation frame of the new Silo HMI (C:\\OTL\\18.SILO_Ban_Moi).
 
 Run:  python build_silo_frame.py <project.dpa> <donor.dpa> <asset folder>
 
@@ -33,7 +33,7 @@ from dpa.document import Raw
 from dpa.model import Project
 
 LUCIDE = Path(__file__).resolve().parent / "assets" / "lucide"  # lucide-static SVGs, ISC licence
-LOGO = Path(r"C:\OTL\LOGO_OTESLA\OTL\print_transparent_black-01.png")
+LOGO = Path(r"C:\OTL\4.Icon_OTL\1.OTL_Logo\print_transparent_black-01.png")
 FONTS = Path(r"C:\Windows\Fonts")
 
 PAGE = "#F3F5F8"      # screen background, header and sidebar share it
@@ -351,6 +351,93 @@ def picture_rect(element, x: int, y: int, width: int, height: int) -> None:
     for state in element.states:
         for key, value in zip(("PictureCoordX", "PictureCoordY", "PictureWidth", "PictureHeight"), (x, y, width, height)):
             state.set(key, value)
+
+
+# --- words over pictures ----------------------------------------------------------
+# Words drawn into a picture cannot be changed in DIAScreen. A picture rendered
+# through static() keeps its words out and remembers where they went; labels()
+# puts each one back over the placed picture as a Text element (10.6), so the
+# words, font and colour are edited in DIAScreen like any other text. A label
+# already in the project is carried over as it stands, so hand edits survive a
+# re-run - delete the element in DIAScreen to have the script draw it afresh.
+# Button faces keep their words: a Delta button cannot be painted flat.
+TEXT_DONOR = (r"C:\OTL\OTL_SILO\OTL_Silo6\Code_Silo_AThanh\HMI_AThanh.dpa", "pop_Setting", 2)  # Text, smooth, no fill
+TEXT_PAD = 4          # the panel keeps a left or right aligned word this far in from the element edge
+LABELS: dict[str, list[dict]] = {}
+_kept: dict[tuple[str, str], object] = {}
+_text_donor = []
+
+
+def static(key: str, draw, *args, **kwargs) -> Image.Image:
+    """Run a picture function with its words left out, remembered under `key`."""
+    found = []
+    real = ImageDraw.ImageDraw.text
+
+    def keep(self, xy, text, fill=None, font=None, anchor=None, *rest, **more):
+        anchor = anchor or "la"
+        if isinstance(fill, tuple):
+            fill = "#%02X%02X%02X" % fill[:3]
+        found.append({"text": text, "xy": xy, "anchor": anchor, "box": self.textbbox(xy, text, font=font, anchor=anchor),
+                      "size": font.size, "bold": "bd" in Path(font.path).stem, "colour": fill or INK})
+
+    ImageDraw.ImageDraw.text = keep
+    try:
+        image = draw(*args, **kwargs)
+    finally:
+        ImageDraw.ImageDraw.text = real
+    LABELS[key] = found
+    return image
+
+
+def remember_labels(project: Project) -> None:
+    """Note the labels already in the project before a script clears its elements."""
+    for screen in project.screens:
+        for element in screen.elements:
+            if element.type_code == "10.6" and "_txt" in element.name:
+                _kept[(screen.name, element.name)] = element
+
+
+def even(size: int) -> int:
+    """Delta element fonts take even sizes only; round down as DIAScreen does (15 -> 14 on save)."""
+    return size - size % 2
+
+
+def labels(project: Project, screen, key: str, x: int, y: int, name: str | None = None) -> None:
+    """Lay the words of picture `key`, placed at x, y, over it as Text elements."""
+    if not _text_donor:
+        path, donor_screen, index = TEXT_DONOR
+        _text_donor.append(Project(path).element(donor_screen, index))
+    for n, word in enumerate(LABELS.get(key, []), 1):
+        label = f"{name or key}_txt{n}"
+        kept = _kept.get((screen.name, label))
+        if kept is not None:
+            edit.clone_element(project, kept, screen)
+            continue
+        left, top, right, bottom = word["box"]
+        horizontal, vertical = word["anchor"][0], word["anchor"][1]
+        size = even(word["size"])
+        height = round(size * 1.5)
+        middle = word["xy"][1] if vertical == "m" else (top + bottom) / 2
+        room = max(12, round((right - left) * 0.3))   # space to grow when the words are edited
+        width = right - left + 2 * TEXT_PAD + room
+        if horizontal == "l":
+            ex = word["xy"][0] - TEXT_PAD
+        elif horizontal == "r":
+            ex = word["xy"][0] + TEXT_PAD - width
+        else:
+            width += room
+            ex = (left + right) / 2 - width / 2
+        item = edit.clone_element(project, _text_donor[0], screen, round(x + ex), round(y + middle - height / 2),
+                                  round(width), height, label)
+        item.section.set("AutoResizeByText", 0)   # keep the box, so right and centred words stay put
+        edit.set_state_text(item, word["text"], word["text"])
+        for state in item.states:
+            for slot in (0, 1):
+                state.set(f"FontName{slot}", "Arial")
+                state.set(f"FontSize{slot}", size)
+            state.set("FontColor", bgr(word["colour"]))
+            state.set("FontBold", 1 if word["bold"] else 0)
+            state.set("FontAlign", {"l": 33, "r": 36}.get(horizontal, 34))
 
 
 def main(path: str, donor_path: str, asset_dir: str) -> None:

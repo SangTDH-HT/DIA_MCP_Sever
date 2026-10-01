@@ -9,8 +9,9 @@ COUNTDOWN cards leading into it. Right: CURRENT WEIGHT, then SELECT SILO with
 the round START and the MANUAL / AUTO mode.
 
 Static artwork is rendered into pictures (Sang's hopper.png and Silo_5.png,
-pipes, card frames, labels, units). Everything that moves with the PLC is a
-Delta element laid over it. No PLC addresses exist yet, so every element
+pipes, card frames); its labels and units are Text elements over them, so they
+are edited in DIAScreen. Everything that moves with the PLC is a Delta element
+laid over it. No PLC addresses exist yet, so every element
 points at internal memory; ADDRESSES is the list to rebind.
 
 Re-runnable: every element it made (prefix "fl_") is removed first and the
@@ -396,10 +397,10 @@ def _flat(path: Path, back: str) -> Image.Image:
 
 def render(folder: Path) -> dict[str, Path]:
     faces = {
-        "fl_process": process_drawing(),
-        "fl_status_bar": status_bar(),
-        "fl_weight_card": weight_card(),
-        "fl_silo_card": silo_card(),
+        "fl_process": frame.static("fl_process", process_drawing),
+        "fl_status_bar": frame.static("fl_status_bar", status_bar),
+        "fl_weight_card": frame.static("fl_weight_card", weight_card),
+        "fl_silo_card": frame.static("fl_silo_card", silo_card),
         "fl_start_0": start_face(False),
         "fl_start_1": start_face(True),
         "fl_mode_0": mode_face(False),
@@ -496,6 +497,7 @@ def main(path: str, asset_dir: str) -> None:
     project = Project(path)
     donor = Project(DONOR)
     page = project.screen("Home_Fill")
+    frame.remember_labels(project)
 
     for element in [e for e in page.elements if e.name.startswith("fl_")][::-1]:
         edit.delete_element(project, page, element.index)
@@ -525,6 +527,7 @@ def main(path: str, asset_dir: str) -> None:
         for state in item.states:
             state.set("TransColor", bgr(back))  # the anti-aliased edge blends with this
         frame.picture_rect(item, x, y, w, h)
+        frame.labels(project, page, key, x, y)
         return item
 
     def number(name, box, size, digits, decimals, align=CENTRE, bold=True, colour=INK):
@@ -562,7 +565,7 @@ def main(path: str, asset_dir: str) -> None:
     rx, ry, rw, rh = RATE_CARD
     number("fl_rate", (rx + 6, ry + 45, 70, 30), 24, 3, 1, align=RIGHT)  # ends 8 px before kg/m
     cx, cy, cw, ch = CAP_CARD
-    number("fl_capacity", (cx + 6, cy + 53, 88, 32), 24, 5, 1, align=RIGHT)
+    number("fl_capacity", (cx + 4, cy + 53, 90, 32), 24, 5, 1, align=RIGHT)  # Sang moved it 2 px left, 30/09
     vx, vy, vw, vh = VAC_CARD
     number("fl_pressure", (vx + 4, vy + 77, vw // 2 - 8, 28), 20, 3, 1)
     number("fl_dec_time", (vx + vw // 2 + 4, vy + 77, vw // 2 - 8, 28), 20, 2, 0)

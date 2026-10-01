@@ -104,10 +104,11 @@ def tile_face(label: str, name: str) -> Image.Image:
 
 
 def render(folder: Path) -> dict[str, Path]:
-    faces = {"st_title": title_face("Settings"), "st_back": back_face()}
+    faces = {"st_title": frame.static("st_title", title_face, "Settings"), "st_back": back_face()}
     for screen, label, name in TILES:
         faces[f"st_tile_{screen}"] = tile_face(label, name)
-        faces[f"st_head_{screen}"] = head_face(TITLES.get(screen, label.replace("\n", " ")))
+        faces[f"st_head_{screen}"] = frame.static(f"st_head_{screen}", head_face,
+                                                  TITLES.get(screen, label.replace("\n", " ")))
     folder.mkdir(parents=True, exist_ok=True)
     paths = {}
     for key, image in faces.items():
@@ -132,6 +133,7 @@ def sub_page(project: Project, setting: Screen, name: str) -> Screen:
 def main(path: str, asset_dir: str) -> None:
     project = Project(path)
     setting = project.screen("Setting")
+    frame.remember_labels(project)
     for element in [e for e in setting.elements if e.name.startswith("st_")][::-1]:
         edit.delete_element(project, setting, element.index)
     subs = {screen: sub_page(project, setting, screen) for screen, _, _ in TILES}
@@ -155,6 +157,7 @@ def main(path: str, asset_dir: str) -> None:
         frame.face(item, bank, key)
         frame.flat(item, PAGE)
         frame.picture_rect(item, x, y, w, h)
+        frame.labels(project, screen, key, x, y)
         return item
 
     def goto_button(screen, key, destination, x, y, name):

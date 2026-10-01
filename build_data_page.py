@@ -87,6 +87,7 @@ def main(path: str, asset_dir: str) -> None:
     project = Project(path)
     donor = Project(fill.DONOR)
     page = project.screen(SCREEN)
+    frame.remember_labels(project)
     for element in [e for e in page.elements if e.name.startswith("dt_")][::-1]:
         edit.delete_element(project, page, element.index)
     frame.prune_bank(project)
@@ -94,7 +95,7 @@ def main(path: str, asset_dir: str) -> None:
 
     folder = Path(asset_dir)
     folder.mkdir(parents=True, exist_ok=True)
-    faces = {"dt_title": title_face("Cảnh báo")}
+    faces = {"dt_title": frame.static("dt_title", title_face, "Cảnh báo")}
     for p in (0, 1):
         faces[f"dt_ack_{p}"] = button_face(ACK_BTN[2], ACK_BTN[3], "XÁC NHẬN TẤT CẢ", True, bool(p))
     bank = frame.Bank(project)
@@ -116,6 +117,7 @@ def main(path: str, asset_dir: str) -> None:
     for state in title.states:
         state.set("TransColor", bgr(PAGE))
     frame.picture_rect(title, TITLE[0], TITLE[1], w, h)
+    frame.labels(project, page, "dt_title", TITLE[0], TITLE[1])
 
     x, y, w, h = ACK_BTN
     ack = edit.clone_element(project, tpl_push, page, x, y, w, h, "dt_ack")

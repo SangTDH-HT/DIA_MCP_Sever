@@ -7,7 +7,7 @@ description: Phong cách và cách dựng màn hình HMI Delta (DIAScreen/DOPSof
 
 Thuộc tính / giới hạn / cách dùng từng đối tượng theo sách DIAScreen → skill `diascreen` (tra theo đối tượng trước khi làm). Skill này chỉ lo phong cách và cách dựng bằng script.
 
-Mẫu chuẩn: dự án `C:\OTL\SILO_Ban_Moi\3.HMI_SILO\HMI_Silo.dpa`. Thư mục dự án (Sáng đặt 30/09):
+Mẫu chuẩn: dự án `C:\OTL\18.SILO_Ban_Moi\3.HMI_SILO\HMI_Silo.dpa`. Thư mục dự án (Sáng đặt 30/09):
 
 | Thư mục | Chứa |
 |---|---|
@@ -26,13 +26,16 @@ Code mẫu ở `C:\Tia_Claude\DeltaDpa_src`:
 | `build_home_pages.py` | Xả liệu + Công thức (tiếng Việt), một bố cục hai biến thể qua `PAGES` |
 | `build_setting_page.py` | trang menu: tiêu đề 34 đậm + vạch xanh `#4A84B6` 44x4, lưới ô 202x176 cách 14 (icon Lucide 56 + nhãn 18), trang con khung trống có "‹ Settings" |
 | `build_calibration_page.py` | trang biểu mẫu (Set_Calibration): các khối thẻ xếp dọc, nhãn 14 trên ô cao 36, giếng `TILE` cho số đọc, ô nhập viền `FIELD_LINE`, nút chính tối `#5A6068` (nhấn `#43484F`) / nút phụ trắng, bảng 4 kênh (hàng tiêu đề `#E9EEF3`), ô chọn kích thước bất kỳ; ô ở đáy trang mở danh sách **lên trên** (`UP`) |
+| `build_data_page.py` | trang Data = Cảnh báo: tiêu đề kiểu Settings, nút "XÁC NHẬN TẤT CẢ" cùng hàng bên phải, Alarm History Table 11.1 x 133..983 (cột Giờ xảy ra / Nội dung / Giờ hết / Số lần, hàng đỏ nhạt `#FDE4E8` khi kích, vàng nhạt `#FFF3D9` khi đã xác nhận); ghi luôn danh sách alarm vào `[Alarm]` |
 | `build_info_pages.py` | About (cả trang là một ảnh tĩnh + nút ✕ về Settings, logo lấy phần biểu tượng của `OTL-logo-square-01.png`) và Cài đặt bồn cân (3 thẻ × 6 dòng: nhãn 14/13 một dòng hoặc ngắt ở "–", khoảng giới hạn 12 xám, ô nhập 80x40 có `MinValue/MaxValue`) |
 
 Trang mới: sao chép cách làm của `build_home_pages.py`, import mặt dùng chung từ `build_fill_page`, **đừng vẽ lại theo thói quen**.
 
 ## Nguyên tắc
 
-- **Ảnh tĩnh + phần tử động.** Mọi thứ không đổi theo PLC (khung thẻ, tiêu đề, đơn vị, đường ống, hình silo) vẽ bằng PIL thành một ảnh. Chỉ số, nút, van, tên là phần tử Delta đè lên. Nút Delta không tô màu phẳng được → mặt nút là ảnh render sẵn (Lucide icon + chữ).
+- **Hạn chế hình ảnh** (Sáng 30/09: "sau này thiết kế hạn chế hình ảnh lại nha"). Cái gì phần tử Delta làm được thì dùng phần tử để Sáng tự sửa trong DIAScreen: chữ tĩnh = Text 10.6, đường kẻ thẳng = Line 10.1, số/chữ động = 5.x/6.x. Ảnh chỉ cho thứ Delta không làm được: mặt nút, icon Lucide, hình vẽ thiết bị/đường ống, khung thẻ bo góc. Trước khi render gì thành ảnh, hỏi "phần tử Delta làm được không?".
+- **Ảnh tĩnh + phần tử động.** Mọi thứ không đổi theo PLC mà Delta không vẽ được (khung thẻ, đường ống, hình silo, icon) vẽ bằng PIL thành một ảnh. Chỉ số, nút, van, tên là phần tử Delta đè lên. Nút Delta không tô màu phẳng được → mặt nút là ảnh render sẵn (Lucide icon + chữ).
+- **Chữ tĩnh là phần tử Text 10.6, không nằm trong ảnh** (Sáng 30/09: "toàn hình vậy sao anh sửa?"). Ảnh nền nào cũng render qua `frame.static(key, hàm, *args)`: chữ `t.text(...)` trong hàm không vẽ mà được ghi lại; `picture()` gọi `frame.labels(project, screen, key, x, y)` để đặt từng chữ thành Text (`<key>_txtN`, donor HMI_AThanh `pop_Setting`#2, `AutoResizeByText=0`, cỡ lẻ làm tròn xuống chẵn; Text cỡ 34 DIAScreen lưu thành 36 - kiểm 30/09, các cỡ 10–28 chẵn giữ nguyên). Đầu `main` gọi `frame.remember_labels(project)` → chữ Sáng đã sửa trong DIAScreen được **giữ nguyên** khi chạy lại; muốn script vẽ lại chữ nào thì xoá phần tử đó. Chữ trên mặt nút vẫn trong ảnh. Gạch chân + chấm của `card_title` vẫn trong ảnh, dài theo chữ gốc.
 - **Phông Arial** (`arial.ttf`, đậm `arialbd.ttf`), kể cả chữ trong ảnh. Ngôn ngữ theo mẫu Sáng đưa (Fill tiếng Anh, Xả/Trộn tiếng Việt) - hỏi nếu chưa rõ.
 - **Ô số hiển thị luôn in đậm**, căn phải sát trước đơn vị. Cỡ theo cặp: STATUS 18 · giá trị thẻ quy trình 24 · cặp áp suất/thời gian 20 · cặp thẻ nhỏ 16 · khối lượng lớn 64 màu `#2B3644`.
 - **Tiêu đề** thẻ lớn: đậm 15, ô icon 34x34 nền `TILE` bên trái. Tiêu đề thẻ quy trình: thường 12, gạch mảnh + chấm dưới (`card_title`), quá dài thì thu tới 11 - không nhỏ hơn; hết chỗ thì nới thẻ.

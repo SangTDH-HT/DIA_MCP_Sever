@@ -71,6 +71,9 @@ def sample_text(element) -> str | None:
         return "0" if not decimals else "0." + "0" * decimals
     if kind == "5.2":
         return ""
+    if kind == "10.6":  # static text: its own words
+        entries = element.states[0].entries("wTextLen0") if element.states else []
+        return entries[0].text if entries else None
     if kind in ("5.3", "12.1"):
         return "09/30/2026"
     if kind == "5.4":

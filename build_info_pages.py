@@ -29,7 +29,7 @@ from build_silo_frame import INK, MUTED, NAV_INK, PAGE, TAB_LINE, WHITE, bgr, fo
 from dpa import edit
 from dpa.model import Project
 
-LOGO = Path(r"C:\OTL\LOGO_OTESLA\OTL\OTL-logo-square-01.png")
+LOGO = Path(r"C:\OTL\4.Icon_OTL\1.OTL_Logo\OTL-logo-square-01.png")
 BLUE = TAB_LINE          # section titles, the web link
 VALUE = "#2B3644"
 
@@ -180,7 +180,7 @@ def about_face() -> Image.Image:
 
 
 def render(folder: Path) -> dict[str, Path]:
-    faces = {"ab_page": about_face(), "pr_page": parameter_face()}
+    faces = {"ab_page": frame.static("ab_page", about_face), "pr_page": frame.static("pr_page", parameter_face)}
     folder.mkdir(parents=True, exist_ok=True)
     paths = {}
     for key, image in faces.items():
@@ -193,6 +193,7 @@ def render(folder: Path) -> dict[str, Path]:
 def main(path: str, asset_dir: str) -> None:
     project = Project(path)
     about, params = project.screen("Set_About"), project.screen("Set_Parameter")
+    frame.remember_labels(project)
     for page, prefix in ((about, "ab_"), (params, "pr_")):
         for element in [e for e in page.elements if e.name.startswith(prefix)][::-1]:
             edit.delete_element(project, page, element.index)
@@ -217,6 +218,7 @@ def main(path: str, asset_dir: str) -> None:
         for state in item.states:
             state.set("TransColor", bgr(PAGE))
         frame.picture_rect(item, x, y, w, h)
+        frame.labels(project, page, key, x, y, name)
 
     picture(about, "ab_page", 100, CONTENT_TOP, "ab_page")
     picture(params, "pr_page", 100, CARD_Y, "pr_page")
