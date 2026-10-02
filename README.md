@@ -57,19 +57,41 @@ python build_fill_page.py C:\OTL\18.SILO_Ban_Moi\3.HMI_SILO\HMI_Silo.dpa C:\OTL\
 ```
 dpa/                    thư viện .dpa: document, model, edit, picbank, macro, editor
 dpa_mcp.py              MCP server delta-dpa
-build_silo_frame.py     khung chung: logo, user, thanh bên, tab, token màu, icon Lucide
-build_fill_page.py      Home_Fill + mặt dùng chung (START/DỪNG, công tắc, ô chọn + popup)
-build_home_pages.py     Home_Discharge (Xả liệu) + Home_Blend (Công thức)
-build_setting_page.py   Settings: lưới 8 ô + 8 trang con
+render_dpa.py           vẽ screen ra PNG từ kho ảnh của chính dự án, theo ngôn ngữ và trạng thái
+                        (ảnh chỉ để duyệt ở máy, không commit)
+
+skills/delta-hmi-style/ skill phong cách: token, lưới 1024x600, thành phần, bẫy .dpa, chuỗi script
+skills/diascreen/       skill tra sách DIAScreen 1.6.1 theo từng đối tượng + khoá .dpa thật
+docs/quy-trinh-lam-viec.md  quy trình: một vòng sửa, chuỗi script, nối PLC, luật với DIAScreen
+docs/kien-thuc-dpa.md   định dạng .dpa và mọi lần vấp, kèm lý do
+
+build_silo_frame.py     khung chung: logo, user, thanh bên, token màu, icon Lucide
+silo_tabs.py            hàng 5 tab của các trang Home
+build_overview_page.py  Tổng quan 6 bồn: tên, kg, % đầy, đèn van
+build_fill_page.py      Nạp liệu + mặt dùng chung (START/DỪNG, công tắc, ô chọn + popup)
+build_home_pages.py     Xả liệu + Phối trộn
+build_clean_page.py     Làm sạch đường ống
+build_setting_page.py   Settings: lưới 8 ô + đầu trang của mọi trang con
+build_system_tiles.py   ô Settings dùng chức năng của panel (ngày giờ, độ sáng), trang Ngôn ngữ
 build_calibration_page.py  Hiệu chỉnh bồn cân
 build_info_pages.py     About + Cài đặt bồn cân (18 thông số có giới hạn nhập)
-render_dpa.py           vẽ screen ra PNG từ kho ảnh của chính dự án (ảnh chỉ để duyệt ở máy, không commit)
-skills/delta-hmi-style/ skill Claude Code: token, lưới 1024x600, thành phần, bẫy .dpa
-skills/diascreen/       skill tra sách DIAScreen 1.6.1 theo từng đối tượng + khoá .dpa thật
-docs/kien-thuc-dpa.md   định dạng .dpa và mọi lần vấp, kèm lý do
+build_io_page.py        bảng điều khiển tay: từng van, từng động cơ, có khoá liên động
+build_recipe_page.py    công thức phối trộn trong Enhanced Recipe của panel
+build_account_pages.py  Login + Quản lý tài khoản bằng tham số nội bộ của panel
+build_data_page.py      Cảnh báo: Alarm History Table + danh sách alarm
+
+silo_i18n.py            ba ngôn ngữ Anh / Việt / Pháp, chữ tự co cho vừa ô
+translate_silo.py       đưa các trang đã vẽ sang ba ngôn ngữ
+bind_plc.py             địa chỉ giữ chỗ $ → DB của PLC theo hmi_map.json
+rebind_hmi_map.py       dời địa chỉ theo tên thành viên khi DB xếp lại
+apply_security.py       bật máy vào Login, nút cần cấp 8, popup "Không đủ quyền"
+close_popups_on_leave.py  đóng popup khi rời trang (chạy cuối chuỗi)
+
 assets/lucide/          icon Lucide (ISC)
 tests/                  round-trip byte-identical trên 14 dự án thật
 ```
+
+Thứ tự chạy các script và lý do của nó: [`docs/quy-trinh-lam-viec.md`](docs/quy-trinh-lam-viec.md).
 
 ## Phong cách
 
@@ -85,6 +107,16 @@ tests/                  round-trip byte-identical trên 14 dự án thật
 
 Phông Arial, thẻ bo 6 px viền 1 px không bóng, ô số luôn in đậm. Đầy đủ trong
 [`skills/delta-hmi-style/SKILL.md`](skills/delta-hmi-style/SKILL.md).
+
+Năm nguyên tắc giữ cho mọi trang cùng một kiểu:
+
+- **Hạn chế hình ảnh.** Thứ gì phần tử Delta làm được thì dùng phần tử, để sửa được ngay trong
+  DIAScreen: chữ tĩnh là Text, đường kẻ là Line. Ảnh chỉ cho mặt nút, icon, hình thiết bị, khung thẻ.
+- **Ảnh tĩnh, phần tử động.** Số, nút, van, tên là phần tử Delta đè lên ảnh nền.
+- **Một hướng cho mọi trang cùng loại.** Đầu trang và nút quay về do một script duy nhất vẽ;
+  mẫu mới chỉ lấy phần nội dung.
+- **Ba ngôn ngữ.** Chữ là text của phần tử, không nằm trong ảnh; mỗi ngôn ngữ tự co cỡ cho vừa ô.
+- **Bỏ trang trí thừa.** Không khung lồng khung, không dấu tick trên nút đang chọn.
 
 ---
 
@@ -152,6 +184,8 @@ tính cả luồng gzip. Nhờ vậy một lệnh sửa chỉ đổi đúng ch�
 | `pending_changes()` | những gì đã sửa trong bộ nhớ, chưa ghi |
 | `save(out_path, reload_editor)` | ghi ra file, tuỳ chọn nạp lại luôn trong editor |
 | `editor_windows()` | DIAScreen đang mở những dự án nào |
+| `close_in_editor(path)` | đóng dự án trong DIAScreen trước khi sửa, giữ phần người dùng sửa tay |
+| `open_in_editor(path)` | mở lại file trong DIAScreen sau khi ghi |
 | `reload_in_editor(path)` | đóng cửa sổ cũ và mở lại file vừa ghi |
 
 ## Luật an toàn
@@ -177,7 +211,7 @@ tính cả luồng gzip. Nhờ vậy một lệnh sửa chỉ đổi đúng ch�
 
 ```
 python dpa_mcp.py          # stdio MCP server
-python -m pytest tests -q  # 30 test trên dự án thật
+python -m pytest tests -q  # 38 test trên dự án thật
 ```
 
 Đăng ký trong `.mcp.json` với tên `delta-dpa`.
@@ -199,8 +233,21 @@ OTL-30 vào một dự án Delta bất kỳ.
 - **Kho ảnh** `[Picture]`: `dpa/picbank.py` đọc/ghi, `build_silo_frame.Bank` thêm ảnh,
   `prune_bank` dọn ảnh không còn dùng.
 
+## Đã làm thêm (01/10/2026)
+
+- **Macro có điều kiện và phép gán**: `dpa/macro.py` thêm `if_statement` / `else_statement` /
+  `endif_statement`, `assign_statement`, `arith_statement`, `fmov_statement`,
+  `fillasc_statement`; `program()` ghép nhiều câu thành một macro. Khung byte đối chiếu với
+  macro thật do DIAScreen ghi.
+- **Xoá screen**: `dpa/edit.delete_screen()`.
+- **Ba ngôn ngữ**: `silo_i18n.py` thêm ô ngôn ngữ cho cả dự án, `render_dpa.py --lang=N --state=N`
+  vẽ theo ngôn ngữ và trạng thái để soát.
+- **Đóng / mở DIAScreen**: `close_in_editor`, `open_in_editor` trong MCP.
+
 ## Chưa làm
 
 - **Ẩn/hiện theo bit cho Text**: cần thêm khoá `VisibleLink` + `VisibleVar`;
   thêm khoá mới vào section là cơ chế **chưa kiểm chứng** (`Section.set` chỉ sửa khoá có sẵn).
-- **Macro tuỳ ý**: mới ghi được lệnh mở/đóng screen; lệnh gán, BITON… chưa.
+- **Macro**: chưa ghi được lệnh bit (`BITON`, `BITOFF`…) và vòng lặp.
+- **Kiểm trên máy thật**: các trang Tổng quan, I/O, Công thức, Tài khoản và phần phân quyền mới
+  qua biên dịch DIAScreen hoặc mới ghi file; chưa chạy trên panel thật với PLC.

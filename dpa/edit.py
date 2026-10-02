@@ -98,6 +98,14 @@ def clone_screen(project: Project, source: Screen, name: str, screen_id: int | N
     return screen
 
 
+def delete_screen(project: Project, target: Screen) -> None:
+    """Remove a screen with everything on it. Check first that no Goto or macro opens it."""
+    start = project.doc.sections.index(target.section)
+    end = _last_section_index(project.doc, target)
+    del project.doc.sections[start : end + 1]
+    project.screens[:] = [s for s in project.screens if s is not target]
+
+
 def delete_element(project: Project, target: Screen, index: int) -> None:
     element = target.elements[index]
     # By identity, not by value: `list.remove` takes the first *equal* section,

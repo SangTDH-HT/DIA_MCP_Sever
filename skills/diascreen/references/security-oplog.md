@@ -22,4 +22,4 @@ Electronic record (Configuration > Industry Application) ép ghi CSV có checksu
 
 ## Thực tế
 - Nút Password Table = 12.2, Set Low Security = 12.5 (có trong HMI_AThanh).
-- Trang Account Management của Silo đang trống - làm bằng tham số nội bộ ở trên + Character Entry. Chưa kiểm.
+- Trang Login + Set_Account của Silo làm bằng tham số nội bộ ở trên (`build_account_pages.py`). **Đã kiểm 01/10 (biên dịch)**: tham số nội bộ chỉ nhận phần tử Word - nút bit (Set ON / Momentary 1.1) trỏ vào `Login`, `Logout`, `AddUserAccount`… báo "Element address input error"; phải là **Set Constant 1.7 ghi 1**. Ô nhập/ô hiển thị Word biên dịch được. Chạy trên emulator: chưa kiểm.

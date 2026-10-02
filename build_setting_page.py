@@ -41,6 +41,8 @@ TILES = (  # screen, label, icon
     ("Set_Brightness", "Screen Brightness", "monitor"),
     ("Set_About", "About", "info"),
 )
+# These two tiles open the panel's own dialog (build_system_tiles.py): they have no page.
+PANEL_TILES = {"Set_DateTime", "Set_Brightness"}
 TITLES = {"Set_Calibration": "Hiệu chỉnh bồn cân", "Set_Parameter": "Cài đặt bồn cân"}  # else the tile's label
 
 # Content area x 93..1024, y 59..600.
@@ -136,7 +138,7 @@ def main(path: str, asset_dir: str) -> None:
     frame.remember_labels(project)
     for element in [e for e in setting.elements if e.name.startswith("st_")][::-1]:
         edit.delete_element(project, setting, element.index)
-    subs = {screen: sub_page(project, setting, screen) for screen, _, _ in TILES}
+    subs = {screen: sub_page(project, setting, screen) for screen, _, _ in TILES if screen not in PANEL_TILES}
     frame.prune_bank(project)
 
     donor = Project(fill.DONOR)
@@ -174,10 +176,9 @@ def main(path: str, asset_dir: str) -> None:
     for i, (screen, _, _) in enumerate(TILES):
         x = LEFT + (i % 4) * (TILE_W + GAP)
         y = TILE_Y[i // 4]
-        goto_button(setting, f"st_tile_{screen}", subs[screen], x, y, f"st_tile_{i + 1}")
+        goto_button(setting, f"st_tile_{screen}", subs.get(screen, setting), x, y, f"st_tile_{i + 1}")
 
-    for screen, _, _ in TILES:
-        page = subs[screen]
+    for screen, page in subs.items():
         for item in nav:  # side bar with Setting lit, as on the Setting page
             edit.clone_element(project, item, page)
         picture(page, f"st_head_{screen}", HEAD[0], HEAD[1])

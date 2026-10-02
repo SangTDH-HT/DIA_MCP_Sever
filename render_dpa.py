@@ -1,6 +1,10 @@
 """Render a .dpa design to PNG without DIAScreen - for reviews and the README.
 
-Run:  python render_dpa.py <project.dpa> <out folder> [screen ...]
+Run:  python render_dpa.py <project.dpa> <out folder> [--lang=N] [--state=N] [screen ...]
+
+--lang picks the language slot whose words and font sizes are drawn (0 English,
+1 Vietnamese, 2 French on the Silo HMI); --state draws every element in that
+state where it has one (1 = buttons lit / running).
 
 Each screen is drawn as the panel would draw it at rest: its base screen first,
 then every element in drawing order. Elements with a picture show it from the
@@ -35,8 +39,27 @@ SAMPLE = {  # element name -> text shown instead of zeros
     "cal_message": "Đã chốt điểm 1 - đặt quả chuẩn 500 kg cho điểm 2",
     "cal_func_hint": "0-8 · càng lớn càng mượt, càng chậm",
     **{f"cal_net_ch{c}": "500.0" for c in range(1, 5)},
+    "ov_total_kg": "2486", **{f"ov_name_{n}": name for n, name in enumerate(("Robusta S18", "Arabica Cầu Đất", "SILO 3", "Culi", "SILO 5", "Moka"), 1)},
+    **{f"ov_weight_{n}": w for n, w in enumerate(("486.5", "312.0", "500.0", "74.5", "0.0", "265.5"), 1)},
+    **{f"ov_pct_{n}": w for n, w in enumerate(("97", "62", "100", "15", "0", "53"), 1)},
+    **{f"io_name_{n}": name for n, name in enumerate(("Robusta S18", "Arabica Cầu Đất", "SILO 3", "Culi", "SILO 5", "Moka"), 1)},
+    **{f"io_weight_{n}": w for n, w in enumerate(("486.5", "312.0", "500.0", "74.5", "0.0", "265.5"), 1)},
+    **{f"rc_name_{n}": name for n, name in enumerate(("Espresso Blend", "House Blend 70/30", "Robusta đậm", "", "", ""), 1)},
+    **{f"rc_silo_{n}": name for n, name in enumerate(("Robusta S18", "Arabica Cầu Đất", "SILO 3", "Culi", "SILO 5", "Moka"), 1)},
+    **{f"rc_kg_{n}": w for n, w in enumerate(("40.0", "25.0", "0.0", "15.0", "0.0", "10.0"), 1)},
+    "rc_name": "Espresso Blend", "rc_no": "1", "rc_total": "90.0",
+    "io_pressure": "-38.0", "io_code": "31", "io_hold": "12",
     "fr_time": "09:27:22", "fr_date": "09/30/2026",
 }
+
+
+LANG = 0    # language slot drawn
+STATE = 0   # element state drawn, where the element has that many
+
+
+def shown(element):
+    """The state of an element this render shows."""
+    return element.states[min(STATE, len(element.states) - 1)] if element.states else None
 
 
 def colour(bgr: str | None, default=(30, 38, 48)) -> tuple[int, int, int]:
@@ -70,27 +93,31 @@ def sample_text(element) -> str | None:
         decimals = element.section.get_int("DotNum", 0)
         return "0" if not decimals else "0." + "0" * decimals
     if kind == "5.2":
-        return ""
-    if kind == "10.6":  # static text: its own words
-        entries = element.states[0].entries("wTextLen0") if element.states else []
-        return entries[0].text if entries else None
-    if kind in ("5.3", "12.1"):
+        return f"Silo {name.rsplit('_', 1)[1]}" if name.startswith("cl_name_") else ""
+    if kind == "5.3":
         return "09/30/2026"
     if kind == "5.4":
         return "09:27:22"
-    return None
+    # anything else shows the words of its state in the chosen language
+    state = shown(element)
+    entries = (state.entries(f"wTextLen{LANG}") or state.entries("wTextLen0")) if state is not None else []
+    return entries[0].text.replace("\r\n", "\n") if entries and entries[0].text.strip() else None
 
 
 def draw_text(canvas: Image.Image, element, text: str) -> None:
-    state = element.states[0]
-    size = state.get_int("FontSize0", 16)
+    state = shown(element)
+    size = state.get_int(f"FontSize{LANG}", state.get_int("FontSize0", 16))
     bold = state.get("FontBold") == "1"
     face = ImageFont.truetype(str(FONTS / ("arialbd.ttf" if bold else "arial.ttf")), size)
     x, y, w, h = element.rect
     align = state.get_int("FontAlign", 34)
     anchor_x = "l" if align & 1 else "r" if align & 4 else "m"
+    anchor_y = "a" if align & 16 else "d" if align & 64 else "m"
     tx = x + 4 if anchor_x == "l" else x + w - 4 if anchor_x == "r" else x + w / 2
-    ImageDraw.Draw(canvas).text((tx, y + h / 2), text, font=face, fill=colour(state.get("FontColor")), anchor=anchor_x + "m")
+    ty = y + 2 if anchor_y == "a" else y + h - 2 if anchor_y == "d" else y + h / 2
+    ImageDraw.Draw(canvas).multiline_text((tx, ty), text, font=face, fill=colour(state.get("FontColor")),
+                                          anchor=anchor_x + anchor_y, spacing=round(size * 0.15),
+                                          align={"l": "left", "r": "right", "m": "center"}[anchor_x])
 
 
 # Sample rows for an Alarm History Table: (column key -> text), state colour key.
@@ -132,7 +159,7 @@ def draw_elements(canvas: Image.Image, screen, bank: dict[int, Image.Image]) -> 
         if element.type_code == "11.1":
             draw_alarm_table(canvas, element)
             continue
-        state = element.states[0] if element.states else None
+        state = shown(element)
         if state is not None and state.get("Picture Name") and state.get_int("PictureOffset") in bank:
             art = bank[state.get_int("PictureOffset")]
             x, y = state.get_int("PictureCoordX", 0), state.get_int("PictureCoordY", 0)
@@ -157,6 +184,14 @@ def render(project: Project, name: str) -> Image.Image:
 
 
 def main(path: str, out_dir: str, *names: str) -> None:
+    global LANG, STATE
+    for option in [n for n in names if n.startswith("--")]:
+        key, _, value = option[2:].partition("=")
+        if key == "lang":
+            LANG = int(value)
+        elif key == "state":
+            STATE = int(value)
+    names = tuple(n for n in names if not n.startswith("--"))
     project = Project(path)
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)

@@ -28,7 +28,7 @@
 
 ## Thực tế `.dpa`
 
-- Goto: `GoToScreenName` (chữ thường, không phải blob) + `GoToScreenID`, `CloseScreen` (1 = đóng popup đang mở khi chuyển), `Variation` (0 = screen cố định; khác 0 = lấy từ địa chỉ - chưa kiểm), `SelectScreen`. Goto **chỉ có một state** → không có mặt "đang nhấn". Đã kiểm 30/09.
+- Goto: `GoToScreenName` (chữ thường, không phải blob) + `GoToScreenID`, `CloseScreen` (=1 vẫn KHÔNG đóng popup mở bằng macro `OPENSCREEN` - thấy trên emulator 01/10: danh sách chọn bồn nằm lại trên trang Cài đặt; Screen Open/Close macro cấm `CLOSESUBSCREEN` (−83) nên phải đặt Before Execute macro `CLOSESUBSCREEN n` trên từng nút Goto: `DeltaDpa_src/close_popups_on_leave.py`, chạy CUỐI chuỗi script), `Variation` (0 = screen cố định; khác 0 = lấy từ địa chỉ - chưa kiểm), `SelectScreen`. Goto **chỉ có một state** → không có mặt "đang nhấn". Đã kiểm 30/09.
 - Set Constant 1.7: `SetValue`, `WriteVar`; state **không có khoá ảnh** → thay `states[0].items` bằng bản sao state của Momentary 1.1. `AfterExecMacro` đóng popup chạy được. Đã kiểm 29/09 (DIAScreen tự lưu giữ nguyên).
 - Momentary 1.1 có 2 state; `ReadVar` khác `WriteVar` được (START/DỪNG: ghi xung `$210.5`, đọc `$210.7` để đổi mặt). Chưa kiểm trên emulator việc đổi mặt theo ReadVar.
 - Mặt nút = ảnh render sẵn, `Style=3`; nút không ảnh luôn ra xám `#B4B4B4` (không đổi màu được bằng khoá). Đã kiểm.
